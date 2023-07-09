@@ -15,8 +15,8 @@
     align-items: center;
   
     .image-container {
-      width: 23%;
-      padding-right: 15px;
+      width: 15%;
+      padding-right: 30px;
   
       img {
         width: 100%;
@@ -26,14 +26,18 @@
     .name,
     .quantity,
     .price {
-      width: 23%;
+      width: 5%;
+      padding-left: 50px;
+    
     }
   
     .quantity {
       display: flex;
+      margin-right: 5px;
   
       .arrow {
         cursor: pointer;
+        margin-right: 5px;
       }
   
       .value {
