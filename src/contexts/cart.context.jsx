@@ -1,4 +1,16 @@
-import { createContext, useState } from 'react';
+import { createContext, useState, useEffect } from 'react';
+
+const CART_STORAGE_KEY = 'cartItems';
+
+const loadCartItems = () => {
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+};
 
 const addCartItem = (cartItems, productToAdd) => {
   const existingCartItem = cartItems.find(
@@ -50,7 +62,15 @@ export const CartContext = createContext({
 
 export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(loadCartItems);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+    } catch (error) {
+      return;
+    }
+  }, [cartItems]);
 
   const cartCount = cartItems.reduce(
     (total, cartItem) => total + cartItem.quantity,

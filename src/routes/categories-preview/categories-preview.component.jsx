@@ -2,9 +2,15 @@ import { useContext, Fragment } from 'react';
 
 import { CategoriesContext } from '../../contexts/categories.context.jsx';
 import CategoryPreview from '../../components/category-preview/category-preview.component.jsx';
+import Spinner from '../../components/spinner/spinner.component.jsx';
+import StatusMessage from '../../components/status-message/status-message.component.jsx';
 
 const CategoriesPreview = () => {
-  const { categoriesMap } = useContext(CategoriesContext);
+  const { categoriesMap, isLoading, error } = useContext(CategoriesContext);
+
+  if (isLoading) return <Spinner />;
+
+  if (error) return <StatusMessage message={error} />;
 
   return (
     <Fragment>

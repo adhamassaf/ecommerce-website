@@ -1,11 +1,20 @@
-import SignUpForm from "../../components/sign-up-form/sign-up-form.component.jsx";
-import SignInForm from "../../components/sign-in-form/sign-in-form.component.jsx";
+import { useContext } from 'react';
+import { Navigate } from 'react-router-dom';
 
-import "./authentication.styles.scss";
+import SignUpForm from '../../components/sign-up-form/sign-up-form.component.jsx';
+import SignInForm from '../../components/sign-in-form/sign-in-form.component.jsx';
+
+import { UserContext } from '../../contexts/user.context.jsx';
+
+import './authentication.styles.scss';
 
 const Authentication = () => {
+  const { currentUser } = useContext(UserContext);
+
+  if (currentUser) return <Navigate to='/' replace />;
+
   return (
-    <div className="authentication-container">
+    <div className='authentication-container'>
       <SignInForm />
       <SignUpForm />
     </div>
