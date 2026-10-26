@@ -54,8 +54,10 @@ export const CartContext = createContext({
   setIsCartOpen: () => {},
   cartItems: [],
   addItemToCart: () => {},
+  increaseItemQuantity: () => {},
   removeItemFromCart: () => {},
   clearItemFromCart: () => {},
+  lastAdded: null,
   cartCount: 0,
   cartTotal: 0,
 });
@@ -63,6 +65,7 @@ export const CartContext = createContext({
 export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState(loadCartItems);
+  const [lastAdded, setLastAdded] = useState(null);
 
   useEffect(() => {
     try {
@@ -84,6 +87,16 @@ export const CartProvider = ({ children }) => {
 
   const addItemToCart = (productToAdd, quantity = 1) => {
     setCartItems((items) => addCartItem(items, productToAdd, quantity));
+    setLastAdded((previous) => ({
+      key: (previous ? previous.key : 0) + 1,
+      name: productToAdd.name,
+      imageUrl: productToAdd.imageUrl,
+      quantity,
+    }));
+  };
+
+  const increaseItemQuantity = (cartItem) => {
+    setCartItems((items) => addCartItem(items, cartItem, 1));
   };
 
   const removeItemFromCart = (cartItemToRemove) => {
@@ -98,8 +111,10 @@ export const CartProvider = ({ children }) => {
     isCartOpen,
     setIsCartOpen,
     addItemToCart,
+    increaseItemQuantity,
     removeItemFromCart,
     clearItemFromCart,
+    lastAdded,
     cartItems,
     cartCount,
     cartTotal,
