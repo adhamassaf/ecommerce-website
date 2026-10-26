@@ -15,8 +15,30 @@ const defaultFormFields = {
   password: '',
 };
 
+const ignoredErrorCodes = [
+  'auth/popup-closed-by-user',
+  'auth/cancelled-popup-request',
+];
+
+const getErrorMessage = (error) => {
+  switch (error.code) {
+    case 'auth/wrong-password':
+    case 'auth/invalid-credential':
+      return 'Incorrect email or password';
+    case 'auth/user-not-found':
+      return 'No account found with this email';
+    case 'auth/too-many-requests':
+      return 'Too many attempts, try again later';
+    case 'auth/network-request-failed':
+      return 'Network error, check your connection';
+    default:
+      return 'Sign in failed, please try again';
+  }
+};
+
 const SignInForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
+  const [errorMessage, setErrorMessage] = useState('');
   const { email, password } = formFields;
 
   const resetFormFields = () => {
@@ -24,17 +46,25 @@ const SignInForm = () => {
   };
 
   const signInWithGoogle = async () => {
-    await signInWithGooglePopup();
+    setErrorMessage('');
+
+    try {
+      await signInWithGooglePopup();
+    } catch (error) {
+      if (ignoredErrorCodes.includes(error.code)) return;
+      setErrorMessage(getErrorMessage(error));
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setErrorMessage('');
 
     try {
       await signInAuthUserWithEmailAndPassword(email, password);
       resetFormFields();
     } catch (error) {
-      console.log('user sign in failed', error);
+      setErrorMessage(getErrorMessage(error));
     }
   };
 
@@ -66,6 +96,7 @@ const SignInForm = () => {
           name='password'
           value={password}
         />
+        {errorMessage && <span className='error-message'>{errorMessage}</span>}
         <div className='buttons-container'>
           <Button type='submit'>Sign In</Button>
           <Button buttonType='google' type='button' onClick={signInWithGoogle}>

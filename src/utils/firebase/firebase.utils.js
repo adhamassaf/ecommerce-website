@@ -10,27 +10,26 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import {
-   getFirestore, 
-   doc,
-    getDoc,
-    setDoc,
-    collection,
-  writeBatch, 
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  writeBatch,
   query,
-  getDocs
+  getDocs,
 } from 'firebase/firestore';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDcWHUkw29qi1VpS6jqjj1_-9oSwlO-YIE",
-    authDomain: "crwn-eco-db.firebaseapp.com",
-    projectId: "crwn-eco-db",
-    storageBucket: "crwn-eco-db.appspot.com",
-    messagingSenderId: "968006114816",
-    appId: "1:968006114816:web:c8493fbd8fcc41ad8b82e5"
-  };
-  
-  const firebaseApp = initializeApp(firebaseConfig);
-  console.log(firebaseApp);
+  apiKey: 'AIzaSyDcWHUkw29qi1VpS6jqjj1_-9oSwlO-YIE',
+  authDomain: 'crwn-eco-db.firebaseapp.com',
+  projectId: 'crwn-eco-db',
+  storageBucket: 'crwn-eco-db.appspot.com',
+  messagingSenderId: '968006114816',
+  appId: '1:968006114816:web:c8493fbd8fcc41ad8b82e5',
+};
+
+initializeApp(firebaseConfig);
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -39,31 +38,29 @@ googleProvider.setCustomParameters({
 });
 
 export const auth = getAuth();
+
 export const signInWithGooglePopup = () =>
   signInWithPopup(auth, googleProvider);
+
 export const signInWithGoogleRedirect = () =>
   signInWithRedirect(auth, googleProvider);
 
 export const db = getFirestore();
 
-export const addCollectionAndDocuments = async (
-  collectionKey,
-  objectsToAdd,
-  field
-) => {
+export const addCollectionAndDocuments = async (collectionKey, objectsToAdd) => {
   const batch = writeBatch(db);
   const collectionRef = collection(db, collectionKey);
-  
+
   objectsToAdd.forEach((object) => {
-     const docRef = doc(collectionRef, object.title.toLowerCase());
-     batch.set(docRef, object);
+    const docRef = doc(collectionRef, object.title.toLowerCase());
+    batch.set(docRef, object);
   });
 
   await batch.commit();
-  console.log('done');
 };
-export const getCategoriesAndDocuments = async () => {
-  const collectionRef = collection(db, 'categories');
+
+export const getCategoriesAndDocuments = async (collectionKey = 'categories') => {
+  const collectionRef = collection(db, collectionKey);
   const q = query(collectionRef);
 
   const querySnapshot = await getDocs(q);
