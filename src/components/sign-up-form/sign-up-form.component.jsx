@@ -10,6 +10,8 @@ import {
 
 import './sign-up-form.styles.scss';
 
+const MIN_PASSWORD_LENGTH = 6;
+
 const defaultFormFields = {
   displayName: '',
   email: '',
@@ -17,8 +19,25 @@ const defaultFormFields = {
   confirmPassword: '',
 };
 
+const getErrorMessage = (error) => {
+  switch (error.code) {
+    case 'auth/email-already-in-use':
+      return 'This email is already in use';
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address';
+    case 'auth/weak-password':
+      return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+    case 'auth/network-request-failed':
+      return 'Network error, check your connection';
+    default:
+      return 'Could not create the account, please try again';
+  }
+};
+
 const SignUpForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { displayName, email, password, confirmPassword } = formFields;
 
   const resetFormFields = () => {
@@ -27,11 +46,26 @@ const SignUpForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setErrorMessage('');
 
-    if (password !== confirmPassword) {
-      alert('passwords do not match');
+    if (!displayName.trim()) {
+      setErrorMessage('Please enter your name');
       return;
     }
+
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match');
+      return;
+    }
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setErrorMessage(
+        `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const { user } = await createAuthUserWithEmailAndPassword(
@@ -39,14 +73,14 @@ const SignUpForm = () => {
         password
       );
 
-      await createUserDocumentFromAuth(user, { displayName });
+      await createUserDocumentFromAuth(user, {
+        displayName: displayName.trim(),
+      });
       resetFormFields();
     } catch (error) {
-      if (error.code === 'auth/email-already-in-use') {
-        alert('Cannot create user, email already in use');
-      } else {
-        console.log('user creation encountered an error', error);
-      }
+      setErrorMessage(getErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -96,7 +130,14 @@ const SignUpForm = () => {
           name='confirmPassword'
           value={confirmPassword}
         />
-        <Button type='submit'>Sign Up</Button>
+        {errorMessage && (
+          <span className='error-message' role='alert'>
+            {errorMessage}
+          </span>
+        )}
+        <Button type='submit' disabled={isSubmitting}>
+          {isSubmitting ? 'Creating account...' : 'Sign Up'}
+        </Button>
       </form>
     </div>
   );

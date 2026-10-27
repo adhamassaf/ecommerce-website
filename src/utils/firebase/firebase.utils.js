@@ -88,14 +88,28 @@ export const createUserDocumentFromAuth = async (
     const createdAt = new Date();
 
     try {
-      await setDoc(userDocRef, {
-        displayName,
-        email,
-        createdAt,
-        ...additionalInformation,
-      });
+      await setDoc(
+        userDocRef,
+        {
+          email,
+          createdAt,
+          ...(displayName ? { displayName } : {}),
+          ...additionalInformation,
+        },
+        { merge: true }
+      );
     } catch (error) {
       console.log('error creating the user', error.message);
+    }
+  } else if (additionalInformation.displayName) {
+    try {
+      await setDoc(
+        userDocRef,
+        { displayName: additionalInformation.displayName },
+        { merge: true }
+      );
+    } catch (error) {
+      console.log('error updating the user', error.message);
     }
   }
 
