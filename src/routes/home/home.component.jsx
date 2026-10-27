@@ -1,39 +1,29 @@
+import { useContext } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import Directory from '../../components/directory/directory.component.jsx';
+import Spinner from '../../components/spinner/spinner.component.jsx';
+import StatusMessage from '../../components/status-message/status-message.component.jsx';
+
+import { CategoriesContext } from '../../contexts/categories.context.jsx';
+import { getCategoryImage } from '../../utils/category-defaults.js';
 
 const Home = () => {
-  const categories = [
-    {
-      id: 1,
-      title: 'hats',
-      imageUrl: 'https://i.ibb.co/cvpntL1/hats.png',
-    },
-    {
-      id: 2,
-      title: 'jackets',
-      imageUrl: 'https://i.ibb.co/px2tCc3/jackets.png',
-    },
-    {
-      id: 3,
-      title: 'sneakers',
-      imageUrl: 'https://i.ibb.co/0jqHpnp/sneakers.png',
-    },
-    {
-      id: 4,
-      title: 'womens',
-      imageUrl: 'https://i.ibb.co/GCCdy8t/womens.png',
-    },
-    {
-      id: 5,
-      title: 'mens',
-      imageUrl: 'https://i.ibb.co/R70vBrQ/men.png',
-    },
-  ];
+  const { categories, isLoading, error } = useContext(CategoriesContext);
+
+  if (isLoading) return <Spinner />;
+
+  if (error) return <StatusMessage message={error} />;
+
+  const directoryCategories = categories.map((category) => ({
+    id: category.id,
+    title: category.title,
+    imageUrl: getCategoryImage(category),
+  }));
 
   return (
     <div>
-      <Directory categories={categories} />
+      <Directory categories={directoryCategories} />
       <Outlet />
     </div>
   );

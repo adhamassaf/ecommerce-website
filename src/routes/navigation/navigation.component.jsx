@@ -4,6 +4,7 @@ import { Outlet, Link } from 'react-router-dom';
 import CartIcon from '../../components/cart-icon/cart-icon.component';
 import CartDropdown from '../../components/cart-dropdown/cart-dropdown.component';
 import Toast from '../../components/toast/toast.component.jsx';
+import AnnouncementBar from '../../components/announcement-bar/announcement-bar.component.jsx';
 
 import { UserContext } from '../../contexts/user.context';
 import { CartContext } from '../../contexts/cart.context';
@@ -15,11 +16,12 @@ import { signOutUser } from '../../utils/firebase/firebase.utils.js';
 import './navigation.styles.scss';
 
 const Navigation = () => {
-  const { currentUser } = useContext(UserContext);
+  const { currentUser, isAdmin } = useContext(UserContext);
   const { isCartOpen } = useContext(CartContext);
 
   return (
     <Fragment>
+      <AnnouncementBar />
       <div className='navigation'>
         <Link className='logo-container' to='/'>
           <CrwnLogo className='logo' />
@@ -28,6 +30,12 @@ const Navigation = () => {
           <Link className='nav-link' to='/shop'>
             SHOP
           </Link>
+
+          {isAdmin && (
+            <Link className='nav-link' to='/admin'>
+              ADMIN
+            </Link>
+          )}
 
           {currentUser ? (
             <span className='nav-link' onClick={signOutUser}>

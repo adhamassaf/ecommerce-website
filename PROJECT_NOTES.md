@@ -10,10 +10,10 @@
 - styled-components مثبّت لكنه غير مستخدم حالياً
 
 ## الهيكل (src)
-- components: toast, button, cart-dropdown, cart-icon, cart-item, category-preview, checkout-item, directory, directory-item, form-input, product-card, sign-in-form, sign-up-form, spinner, status-message
-- contexts: user, categories (categoriesMap + isLoading + error)، cart (مع حفظ في localStorage)
-- routes: authentication, categories-preview, category, checkout, home, navigation, product-details, shop
-- utils/firebase/firebase.utils.js
+- components: toast, button, cart-dropdown, cart-icon, cart-item, category-preview, checkout-item, directory, directory-item, form-input, product-card, sign-in-form, sign-up-form, spinner, status-message, announcement-bar, admin-field
+- contexts: user (مع isAdmin وisAuthReady)، categories (categories + categoriesMap + isLoading + error + refreshCategories)، cart (مع حفظ في localStorage)
+- routes: authentication, categories-preview, category, checkout, home, navigation, product-details, shop, admin, admin-overview, admin-categories, admin-products, admin-users, admin-settings
+- utils/firebase/firebase.utils.js, slugify.js, is-valid-url.js, admin-errors.js, category-defaults.js
 - shop-data.js (بيانات المنتجات الأصلية، مرفوعة مسبقاً إلى Firestore)
 
 ## ما تم إنجازه
@@ -32,6 +32,23 @@
 - نقل إعدادات Firebase إلى .env
 - قواعد Firestore في firestore.rules: categories قراءة فقط، وusers لصاحب الوثيقة فقط
 
+## لوحة التحكم (/admin)
+- الصفحات: نظرة عامة، الأقسام، المنتجات، المستخدمون، إعدادات الموقع (شريط إعلان أعلى المتجر)
+- الواجهة عربية RTL، وكل أنماطها في routes/admin/admin.styles.scss
+- الصلاحية: وثيقة admins/{uid} في Firestore (المعرّف هو uid الحساب، والمحتوى أي حقل مثل role: 'admin')، تُنشأ يدوياً من Firebase Console فقط، والقواعد تمنع إنشاءها من المتصفح
+- الصفحة /admin تحوّل غير المسجّل إلى /auth، وتعرض رسالة رفض لغير المدير، ويظهر رابط ADMIN في الشريط العلوي للمدير فقط
+- الأقسام: معرّف الوثيقة (slug) هو مفتاح الرابط /shop/:category، ولا يمكن تغيير اسم القسم بعد إنشائه، وحقل order اختياري (الأقسام الأساسية تحتل 0 إلى 4)، وحقل imageUrl لصورة القسم في الصفحة الرئيسية
+- المنتجات: تُخزَّن داخل مصفوفة items في وثيقة القسم، والمعرّف الجديد = أكبر معرّف موجود + 1 (فريد على مستوى كل الأقسام لأن السلة تعتمد على id)، والإضافة والنقل بين الأقسام والحذف تتم داخل transaction
+- الصور بالروابط فقط (لا رفع ملفات حالياً)
+- الصفحة الرئيسية صارت تقرأ الأقسام من Firestore بدل القائمة الثابتة، وبطاقة القسم صارت تفتح /shop/:category
+- إعدادات الموقع في settings/site: announcementEnabled وannouncementText
+
+## تفعيل لوحة التحكم (خطوات لمرة واحدة)
+1. نشر القواعد: Firebase Console > Firestore > Rules، ألصق محتوى firestore.rules ثم Publish
+2. سجّل الدخول في الموقع بحسابك، ثم انسخ UID حسابك من Authentication > Users
+3. Firestore > Start collection باسم admins > Document ID = الـ UID، وأضف حقلاً واحداً مثل role (string) = admin
+4. حدّث الموقع، سيظهر رابط ADMIN
+
 ## تسجيل الدخول بجوجل (إعداد خارجي)
 - المشكلة السابقة: Error 401 deleted_client
 - الحل: عميل OAuth جديد (Web application) في Google Cloud لمشروع crwn-eco-db، وربطه في Firebase: Authentication > Sign-in method > Google > Web SDK configuration (Web client ID + secret)
@@ -43,8 +60,10 @@
 ## ملاحظات
 - أخطاء Cross-Origin-Opener-Policy في Console عند نافذة جوجل المنبثقة غير مؤثرة
 - مجموعة collections في Firestore غير مستخدمة (يمكن حذفها لاحقاً)
-- addCollectionAndDocuments لن تعمل من المتصفح بعد القواعد الجديدة (الكتابة على categories ممنوعة)
+- addCollectionAndDocuments لن تعمل من المتصفح إلا لحساب مدير (الكتابة على categories مقصورة على admins)
 
 ## الخطوات التالية المقترحة
 1. الدفع عبر Stripe (يحتاج خادماً صغيراً مثل Firebase Functions)
-2. تحسينات اختيارية: ترقيم الصفحات، المفضلة، تحويل رسالة خطأ sign-up إلى واجهة (يحتاج خادماً صغيراً مثل Firebase Functions)
+2. صفحة طلبات في لوحة التحكم (بعد Stripe)
+3. رفع صور المنتجات عبر Firebase Storage بدل الروابط
+4. تحسينات اختيارية: ترقيم الصفحات، المفضلة، تحويل رسالة خطأ sign-up إلى واجهة

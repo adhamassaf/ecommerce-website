@@ -1,25 +1,34 @@
-import { createContext, useState, useEffect } from 'react';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 
-import { getCategoriesAndDocuments } from '../utils/firebase/firebase.utils.js';
+import { getCategoryDocuments } from '../utils/firebase/firebase.utils.js';
+import { sortCategories } from '../utils/category-defaults.js';
 
 export const CategoriesContext = createContext({
+  categories: [],
   categoriesMap: {},
   isLoading: true,
   error: null,
+  refreshCategories: async () => {},
 });
 
 export const CategoriesProvider = ({ children }) => {
-  const [categoriesMap, setCategoriesMap] = useState({});
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let isCancelled = false;
 
-    const getCategoriesMap = async () => {
+    const loadCategories = async () => {
       try {
-        const categoryMap = await getCategoriesAndDocuments('categories');
-        if (!isCancelled) setCategoriesMap(categoryMap);
+        const documents = await getCategoryDocuments();
+        if (!isCancelled) setCategories(sortCategories(documents));
       } catch (err) {
         if (!isCancelled) {
           setError('Failed to load products. Please try again later.');
@@ -29,14 +38,34 @@ export const CategoriesProvider = ({ children }) => {
       }
     };
 
-    getCategoriesMap();
+    loadCategories();
 
     return () => {
       isCancelled = true;
     };
   }, []);
 
-  const value = { categoriesMap, isLoading, error };
+  const refreshCategories = useCallback(async () => {
+    const documents = await getCategoryDocuments();
+    setCategories(sortCategories(documents));
+  }, []);
+
+  const categoriesMap = useMemo(
+    () =>
+      categories.reduce((acc, category) => {
+        acc[category.id] = category.items;
+        return acc;
+      }, {}),
+    [categories]
+  );
+
+  const value = {
+    categories,
+    categoriesMap,
+    isLoading,
+    error,
+    refreshCategories,
+  };
 
   return (
     <CategoriesContext.Provider value={value}>

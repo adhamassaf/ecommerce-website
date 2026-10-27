@@ -5,6 +5,12 @@ import Navigation from './routes/navigation/navigation.component.jsx';
 import Authentication from './routes/authentication/authentication.component.jsx';
 import Shop from './routes/shop/shop.component.jsx';
 import Checkout from './routes/checkout/checkout.component.jsx';
+import Admin from './routes/admin/admin.component.jsx';
+import AdminOverview from './routes/admin-overview/admin-overview.component.jsx';
+import AdminCategories from './routes/admin-categories/admin-categories.component.jsx';
+import AdminProducts from './routes/admin-products/admin-products.component.jsx';
+import AdminUsers from './routes/admin-users/admin-users.component.jsx';
+import AdminSettings from './routes/admin-settings/admin-settings.component.jsx';
 
 const App = () => {
   return (
@@ -14,6 +20,13 @@ const App = () => {
         <Route path='shop/*' element={<Shop />} />
         <Route path='auth' element={<Authentication />} />
         <Route path='checkout' element={<Checkout />} />
+        <Route path='admin' element={<Admin />}>
+          <Route index element={<AdminOverview />} />
+          <Route path='categories' element={<AdminCategories />} />
+          <Route path='products' element={<AdminProducts />} />
+          <Route path='users' element={<AdminUsers />} />
+          <Route path='settings' element={<AdminSettings />} />
+        </Route>
       </Route>
     </Routes>
   );
