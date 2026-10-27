@@ -1,0 +1,26 @@
+.highlight {
+  color: inherit;
+  padding: 0 2px;
+  margin: 0 -2px;
+  border-radius: 3px;
+  background-image: linear-gradient(120deg, #ffe27a, #ffd166);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  animation: highlight-sweep 0.4s ease-out both;
+}
+
+@keyframes highlight-sweep {
+  from {
+    background-size: 0% 100%;
+  }
+
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .highlight {
+    animation: none;
+  }
+}

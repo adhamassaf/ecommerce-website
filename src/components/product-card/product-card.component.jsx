@@ -4,10 +4,11 @@ import { Link } from 'react-router-dom';
 import { CartContext } from '../../contexts/cart.context.jsx';
 
 import Button from '../button/button.component.jsx';
+import Highlight from '../highlight/highlight.component.jsx';
 
 import './product-card.styles.scss';
 
-const ProductCard = ({ product, category }) => {
+const ProductCard = ({ product, category, highlight }) => {
   const { id, name, price, imageUrl } = product;
   const { addItemToCart } = useContext(CartContext);
 
@@ -22,7 +23,9 @@ const ProductCard = ({ product, category }) => {
       </Link>
       <div className='footer'>
         <Link className='product-card-link' to={productPath}>
-          <span className='name'>{name}</span>
+          <span className='name'>
+            <Highlight text={name} query={highlight} />
+          </span>
         </Link>
         <span className='price'>{price}</span>
       </div>

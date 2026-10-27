@@ -54,6 +54,7 @@ const CategoriesPreview = () => {
             key={`${product.category}-${product.id}`}
             product={product}
             category={product.category}
+            highlight={filters.query}
           />
         ))}
       </div>

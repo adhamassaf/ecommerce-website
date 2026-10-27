@@ -46,6 +46,7 @@ const Category = () => {
               key={product.id}
               product={product}
               category={category}
+              highlight={filters.query}
             />
           ))}
         </div>
