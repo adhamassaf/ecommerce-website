@@ -10,10 +10,10 @@
 - styled-components مثبّت لكنه غير مستخدم حالياً
 
 ## الهيكل (src)
-- components: toast, button, cart-dropdown, cart-icon, cart-item, category-preview, checkout-item, directory, directory-item, form-input, product-card, sign-in-form, sign-up-form, spinner, status-message, announcement-bar, admin-field
+- components: order-form, order-status-badge, toast, button, cart-dropdown, cart-icon, cart-item, category-preview, checkout-item, directory, directory-item, form-input, product-card, sign-in-form, sign-up-form, spinner, status-message, announcement-bar, admin-field
 - contexts: user (مع isAdmin وisAuthReady)، categories (categories + categoriesMap + isLoading + error + refreshCategories)، cart (مع حفظ في localStorage)
-- routes: authentication, categories-preview, category, checkout, home, navigation, product-details, shop, admin, admin-overview, admin-categories, admin-products, admin-users, admin-settings
-- utils/firebase/firebase.utils.js, slugify.js, is-valid-url.js, admin-errors.js, category-defaults.js
+- routes: authentication, categories-preview, category, checkout, home, navigation, orders, order-details, product-details, shop, admin, admin-orders, admin-overview, admin-categories, admin-products, admin-users, admin-settings
+- utils/firebase/firebase.utils.js, orders.js, slugify.js, is-valid-url.js, admin-errors.js, category-defaults.js
 - shop-data.js (بيانات المنتجات الأصلية، مرفوعة مسبقاً إلى Firestore)
 
 ## ما تم إنجازه
@@ -31,6 +31,17 @@
 - البحث والفلترة والفرز: بحث بالاسم (وبالفئة في /shop)، فرز (السعر والاسم)، حد أدنى وأعلى للسعر؛ تُحفظ في رابط الصفحة (?q=&sort=&min=&max=) عبر hooks/use-product-filters.js، والمنطق في utils/product-filters.js، والواجهة في components/product-filters و components/no-results
 - نقل إعدادات Firebase إلى .env
 - قواعد Firestore في firestore.rules: categories قراءة فقط، وusers لصاحب الوثيقة فقط
+
+## الطلبات (دفع تجريبي بدون أي خدمة مدفوعة)
+- المشروع للسيرة الذاتية ومجاني بالكامل: لا Stripe ولا Functions ولا أي ترقية، ولا حقول بطاقة إطلاقاً (لافتة Demo store ظاهرة في صفحة checkout)
+- صفحة /checkout: السلة + نموذج الشحن (components/order-form) + طريقة الدفع (الدفع عند الاستلام cod أو بطاقة تجريبي demo-card بنقرة واحدة)، والطلب للمسجّلين فقط (غير المسجّل يُحوَّل إلى /auth ثم يعود إلى /checkout عبر location.state.from)
+- الطلب يُحفظ في Firestore: orders/{autoId} = userId, userEmail, userName, items (لقطة: id, name, imageUrl, price, quantity), itemsCount, total, shipping {fullName, phone, address, city, notes}, paymentMethod, paymentStatus (pending أو paid-demo), status (pending, processing, shipped, delivered, cancelled), createdAt
+- الأسعار تُؤخذ من الأقسام المحمّلة في المتصفح وقت الطلب وتُحسب في الواجهة (مقبول للعرض التجريبي؛ في نظام حقيقي تُحسب على الخادم)
+- بعد الطلب: تفريغ السلة (clearCart) والانتقال إلى /orders/:orderId مع رسالة نجاح
+- /orders: طلباتي، و/orders/:orderId: تفاصيل الطلب (للمالك أو الأدمن)، ورابط ORDERS في الشريط العلوي للمسجّل
+- /admin/orders: قائمة كل الطلبات بالعربية، فلترة بالحالة، تغيير الحالة، وتفاصيل الطلب؛ وإحصاء عدد الطلبات في نظرة عامة
+- قواعد Firestore: المستخدم ينشئ طلبه فقط بحقول محددة وحالة pending ويقرأ طلباته، والأدمن يقرأ الكل ويعدّل status فقط؛ لا حذف. استعلام طلبات المستخدم بدون orderBy لتفادي الفهارس المركّبة (الترتيب في الواجهة)
+- بعد أي تعديل على firestore.rules: Firebase Console > Firestore > Rules > Publish
 
 ## لوحة التحكم (/admin)
 - الصفحات: نظرة عامة، الأقسام، المنتجات، المستخدمون، إعدادات الموقع (شريط إعلان أعلى المتجر)
@@ -63,7 +74,6 @@
 - addCollectionAndDocuments لن تعمل من المتصفح إلا لحساب مدير (الكتابة على categories مقصورة على admins)
 
 ## الخطوات التالية المقترحة
-1. الدفع عبر Stripe (يحتاج خادماً صغيراً مثل Firebase Functions)
-2. صفحة طلبات في لوحة التحكم (بعد Stripe)
-3. رفع صور المنتجات عبر Firebase Storage بدل الروابط
-4. تحسينات اختيارية: ترقيم الصفحات، المفضلة، تحويل رسالة خطأ sign-up إلى واجهة
+1. تجهيز النشر على GitHub Pages (روابط عميقة، homepage، نطاق github.io في Firebase وGoogle OAuth)
+2. كتابة README احترافي للسيرة الذاتية (لقطات شاشة، رابط مباشر، شرح التقنيات، وملاحظة أن الدفع تجريبي)
+3. تحسينات اختيارية: المفضلة (Wishlist)، ترقيم الصفحات، إلغاء الطلب من المستخدم

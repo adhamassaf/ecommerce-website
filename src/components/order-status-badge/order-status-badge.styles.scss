@@ -1,0 +1,30 @@
+.order-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+  color: #5c4400;
+  background-color: #fff3cd;
+
+  &.processing {
+    color: #0b4a8a;
+    background-color: #e3f0fd;
+  }
+
+  &.shipped {
+    color: #55318f;
+    background-color: #efe7fb;
+  }
+
+  &.delivered {
+    color: #1e6b3a;
+    background-color: #e3f5e9;
+  }
+
+  &.cancelled {
+    color: #8a1c14;
+    background-color: #fdeceb;
+  }
+}

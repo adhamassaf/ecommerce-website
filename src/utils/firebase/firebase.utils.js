@@ -14,13 +14,17 @@ import {
   doc,
   getDoc,
   setDoc,
+  addDoc,
+  updateDoc,
   deleteDoc,
   collection,
   writeBatch,
   runTransaction,
   getCountFromServer,
   query,
+  where,
   getDocs,
+  serverTimestamp,
 } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -184,6 +188,90 @@ export const getUserDocuments = async () => {
 
 export const getUsersCount = async () => {
   const snapshot = await getCountFromServer(collection(db, 'users'));
+  return snapshot.data().count;
+};
+
+const mapOrderDocument = (docSnapshot) => {
+  const data = docSnapshot.data();
+
+  return {
+    id: docSnapshot.id,
+    userId: data.userId || '',
+    userEmail: data.userEmail || '',
+    userName: data.userName || '',
+    items: Array.isArray(data.items) ? data.items : [],
+    itemsCount: Number(data.itemsCount) || 0,
+    total: Number(data.total) || 0,
+    shipping: data.shipping || {},
+    paymentMethod: data.paymentMethod || 'cod',
+    paymentStatus: data.paymentStatus || 'pending',
+    status: data.status || 'pending',
+    createdAt:
+      data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate()
+        : null,
+  };
+};
+
+const sortOrdersByDate = (orders) =>
+  [...orders].sort(
+    (a, b) =>
+      (b.createdAt ? b.createdAt.getTime() : 0) -
+      (a.createdAt ? a.createdAt.getTime() : 0)
+  );
+
+export const createOrder = async ({
+  user,
+  items,
+  total,
+  shipping,
+  paymentMethod,
+}) => {
+  const docRef = await addDoc(collection(db, 'orders'), {
+    userId: user.uid,
+    userEmail: user.email || '',
+    userName: shipping.fullName,
+    items,
+    itemsCount: items.reduce((sum, item) => sum + item.quantity, 0),
+    total,
+    shipping,
+    paymentMethod,
+    paymentStatus: paymentMethod === 'demo-card' ? 'paid-demo' : 'pending',
+    status: 'pending',
+    createdAt: serverTimestamp(),
+  });
+
+  return docRef.id;
+};
+
+export const getOrderById = async (orderId) => {
+  const snapshot = await getDoc(doc(db, 'orders', orderId));
+
+  return snapshot.exists() ? mapOrderDocument(snapshot) : null;
+};
+
+export const getUserOrders = async (uid) => {
+  const querySnapshot = await getDocs(
+    query(collection(db, 'orders'), where('userId', '==', uid))
+  );
+
+  return sortOrdersByDate(querySnapshot.docs.map(mapOrderDocument));
+};
+
+export const getAllOrders = async () => {
+  const querySnapshot = await getDocs(collection(db, 'orders'));
+
+  return sortOrdersByDate(querySnapshot.docs.map(mapOrderDocument));
+};
+
+export const updateOrderStatus = async (orderId, status) =>
+  updateDoc(doc(db, 'orders', orderId), {
+    status,
+    updatedAt: serverTimestamp(),
+  });
+
+export const getOrdersCount = async () => {
+  const snapshot = await getCountFromServer(collection(db, 'orders'));
   return snapshot.data().count;
 };
 

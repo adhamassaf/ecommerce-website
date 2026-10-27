@@ -5,11 +5,15 @@ import Spinner from '../../components/spinner/spinner.component.jsx';
 import StatusMessage from '../../components/status-message/status-message.component.jsx';
 
 import { CategoriesContext } from '../../contexts/categories.context.jsx';
-import { getUsersCount } from '../../utils/firebase/firebase.utils.js';
+import {
+  getOrdersCount,
+  getUsersCount,
+} from '../../utils/firebase/firebase.utils.js';
 
 const AdminOverview = () => {
   const { categories, isLoading, error } = useContext(CategoriesContext);
   const [usersCount, setUsersCount] = useState(null);
+  const [ordersCount, setOrdersCount] = useState(null);
 
   useEffect(() => {
     let isActive = true;
@@ -20,6 +24,14 @@ const AdminOverview = () => {
       })
       .catch(() => {
         if (isActive) setUsersCount(null);
+      });
+
+    getOrdersCount()
+      .then((count) => {
+        if (isActive) setOrdersCount(count);
+      })
+      .catch(() => {
+        if (isActive) setOrdersCount(null);
       });
 
     return () => {
@@ -63,6 +75,12 @@ const AdminOverview = () => {
           <span className='admin-stat-label'>مستخدم مسجّل</span>
         </div>
         <div className='admin-stat'>
+          <span className='admin-stat-value'>
+            {ordersCount === null ? '-' : ordersCount}
+          </span>
+          <span className='admin-stat-label'>طلب</span>
+        </div>
+        <div className='admin-stat'>
           <span className='admin-stat-value'>${stats.average.toFixed(2)}</span>
           <span className='admin-stat-label'>متوسط سعر المنتج</span>
         </div>
@@ -73,6 +91,9 @@ const AdminOverview = () => {
         <div className='admin-quick-links'>
           <Link className='admin-button' to='/admin/products'>
             إضافة منتج
+          </Link>
+          <Link className='admin-button secondary' to='/admin/orders'>
+            عرض الطلبات
           </Link>
           <Link className='admin-button secondary' to='/admin/categories'>
             إضافة قسم

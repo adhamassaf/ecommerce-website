@@ -1,0 +1,137 @@
+.order-details-container {
+  width: 80%;
+  max-width: 1000px;
+  margin: 30px auto 60px;
+
+  .order-success {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 20px;
+    margin-bottom: 30px;
+    color: #1e6b3a;
+    background-color: #eef7f1;
+    border: 1px solid #1e6b3a;
+  }
+
+  .order-details-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  .order-details-title {
+    margin: 0 0 6px;
+    font-size: 36px;
+  }
+
+  .order-details-date {
+    color: #666;
+  }
+
+  .order-details-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    align-items: start;
+  }
+
+  .order-items {
+    border: 1px solid black;
+  }
+
+  .order-item {
+    display: grid;
+    grid-template-columns: 70px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #d9d9d9;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    img {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+    }
+  }
+
+  .order-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .order-item-name {
+    font-size: 19px;
+  }
+
+  .order-item-meta {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .order-item-total {
+    font-size: 19px;
+    font-weight: bold;
+  }
+
+  .order-summary {
+    padding: 20px;
+    border: 1px solid black;
+  }
+
+  .order-summary-title {
+    margin: 0 0 16px;
+    font-size: 24px;
+  }
+
+  .order-summary-list {
+    margin: 0;
+
+    dt {
+      margin-top: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #666;
+    }
+
+    dd {
+      margin: 4px 0 0;
+      font-size: 17px;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .order-summary-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    padding-top: 16px;
+    font-size: 26px;
+    font-weight: bold;
+    border-top: 1px solid #d9d9d9;
+  }
+
+  .order-back-link {
+    display: inline-block;
+    margin-top: 30px;
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 767px) {
+  .order-details-container {
+    width: 92%;
+
+    .order-details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

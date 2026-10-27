@@ -12,6 +12,7 @@ const ADMIN_LINKS = [
   { to: '/admin', label: 'نظرة عامة', end: true },
   { to: '/admin/categories', label: 'الأقسام' },
   { to: '/admin/products', label: 'المنتجات' },
+  { to: '/admin/orders', label: 'الطلبات' },
   { to: '/admin/users', label: 'المستخدمون' },
   { to: '/admin/settings', label: 'إعدادات الموقع' },
 ];
