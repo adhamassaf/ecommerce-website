@@ -1,14 +1,48 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useRef, useContext } from 'react';
+
+import { UserContext } from './user.context.jsx';
 
 const CART_STORAGE_KEY = 'cartItems';
+const CART_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 const loadCartItems = () => {
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
-    const parsed = stored ? JSON.parse(stored) : [];
-    return Array.isArray(parsed) ? parsed : [];
+
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+
+    if (Array.isArray(parsed)) return parsed;
+
+    if (!parsed || !Array.isArray(parsed.items)) return [];
+
+    if (
+      typeof parsed.savedAt !== 'number' ||
+      Date.now() - parsed.savedAt > CART_TTL_MS
+    ) {
+      return [];
+    }
+
+    return parsed.items;
   } catch (error) {
     return [];
+  }
+};
+
+const saveCartItems = (cartItems) => {
+  try {
+    if (cartItems.length === 0) {
+      localStorage.removeItem(CART_STORAGE_KEY);
+      return;
+    }
+
+    localStorage.setItem(
+      CART_STORAGE_KEY,
+      JSON.stringify({ items: cartItems, savedAt: Date.now() })
+    );
+  } catch (error) {
+    return;
   }
 };
 
@@ -63,17 +97,26 @@ export const CartContext = createContext({
 });
 
 export const CartProvider = ({ children }) => {
+  const { currentUser } = useContext(UserContext);
+  const previousUserRef = useRef(null);
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState(loadCartItems);
   const [lastAdded, setLastAdded] = useState(null);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
-    } catch (error) {
-      return;
-    }
+    saveCartItems(cartItems);
   }, [cartItems]);
+
+  useEffect(() => {
+    if (previousUserRef.current && !currentUser) {
+      setCartItems([]);
+      setIsCartOpen(false);
+      setLastAdded(null);
+    }
+
+    previousUserRef.current = currentUser;
+  }, [currentUser]);
 
   const cartCount = cartItems.reduce(
     (total, cartItem) => total + cartItem.quantity,
