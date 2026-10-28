@@ -8,6 +8,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  updateProfile,
 } from 'firebase/auth';
 import {
   getFirestore,
@@ -26,7 +27,6 @@ import {
   getDocs,
   serverTimestamp,
 } from 'firebase/firestore';
-
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
@@ -294,7 +294,7 @@ export const createUserDocumentFromAuth = async (
   const userSnapshot = await getDoc(userDocRef);
 
   if (!userSnapshot.exists()) {
-    const { displayName, email } = userAuth;
+    const { displayName, email, photoURL } = userAuth;
     const createdAt = new Date();
 
     try {
@@ -304,6 +304,7 @@ export const createUserDocumentFromAuth = async (
           email,
           createdAt,
           ...(displayName ? { displayName } : {}),
+          ...(photoURL ? { photoURL } : {}),
           ...additionalInformation,
         },
         { merge: true }
@@ -324,6 +325,113 @@ export const createUserDocumentFromAuth = async (
   }
 
   return userDocRef;
+};
+
+export const getUserProfile = async (uid) => {
+  if (!uid) return null;
+
+  const userDocRef = doc(db, 'users', uid);
+  const snapshot = await getDoc(userDocRef);
+
+  if (!snapshot.exists()) return null;
+
+  const data = snapshot.data();
+
+  return {
+    uid,
+    email: data.email || '',
+    displayName: data.displayName || '',
+    photoURL: data.photoURL || '',
+    phone: data.phone || '',
+  };
+};
+
+export const updateUserProfile = async (uid, { displayName, phone, photoURL }) => {
+  if (!uid) throw new Error('Missing user id');
+
+  const payload = {
+    updatedAt: serverTimestamp(),
+  };
+
+  if (typeof displayName === 'string') {
+    payload.displayName = displayName.trim();
+  }
+
+  if (typeof phone === 'string') {
+    payload.phone = phone.trim();
+  }
+
+  if (typeof photoURL === 'string') {
+    payload.photoURL = photoURL;
+  }
+
+  await setDoc(doc(db, 'users', uid), payload, { merge: true });
+
+  if (auth.currentUser && auth.currentUser.uid === uid) {
+    const authUpdates = {};
+
+    if (typeof displayName === 'string') {
+      authUpdates.displayName = displayName.trim() || null;
+    }
+
+    if (
+      typeof photoURL === 'string' &&
+      photoURL &&
+      !photoURL.startsWith('data:') &&
+      photoURL.length < 2000
+    ) {
+      authUpdates.photoURL = photoURL;
+    }
+
+    if (Object.keys(authUpdates).length > 0) {
+      await updateProfile(auth.currentUser, authUpdates);
+    }
+  }
+};
+
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Could not read image file'));
+    reader.readAsDataURL(file);
+  });
+
+const compressImageFile = async (file, { maxSize = 320, quality = 0.72 } = {}) => {
+  const dataUrl = await readFileAsDataUrl(file);
+
+  const image = await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Could not process image'));
+    img.src = dataUrl;
+  });
+
+  const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+  const width = Math.max(1, Math.round(image.width * scale));
+  const height = Math.max(1, Math.round(image.height * scale));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext('2d');
+  context.drawImage(image, 0, 0, width, height);
+
+  return canvas.toDataURL('image/jpeg', quality);
+};
+
+export const uploadProfilePhoto = async (uid, file) => {
+  if (!uid || !file) throw new Error('Missing upload data');
+
+  if (!file.type || !file.type.startsWith('image/')) {
+    throw new Error('Please choose an image file.');
+  }
+
+  const photoURL = await compressImageFile(file);
+  await updateUserProfile(uid, { photoURL });
+
+  return photoURL;
 };
 
 export const createAuthUserWithEmailAndPassword = async (email, password) => {

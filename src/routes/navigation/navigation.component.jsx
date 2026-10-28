@@ -16,8 +16,23 @@ import { signOutUser } from '../../utils/firebase/firebase.utils.js';
 import './navigation.styles.scss';
 
 const Navigation = () => {
-  const { currentUser, isAdmin } = useContext(UserContext);
+  const { currentUser, userProfile, isAdmin } = useContext(UserContext);
   const { isCartOpen } = useContext(CartContext);
+
+  const displayName =
+    (userProfile && userProfile.displayName) ||
+    (currentUser && currentUser.displayName) ||
+    '';
+  const photoURL =
+    (userProfile && userProfile.photoURL) ||
+    (currentUser && currentUser.photoURL) ||
+    '';
+  const shortName = displayName
+    ? displayName.split(' ')[0]
+    : currentUser && currentUser.email
+      ? currentUser.email.split('@')[0]
+      : 'Account';
+  const initials = (displayName || shortName || '?').charAt(0).toUpperCase();
 
   return (
     <Fragment>
@@ -52,6 +67,20 @@ const Navigation = () => {
               SIGN IN
             </Link>
           )}
+
+          {currentUser && (
+            <Link className='nav-user' to='/profile' title='My profile'>
+              <span className='nav-user-avatar'>
+                {photoURL ? (
+                  <img src={photoURL} alt={shortName} />
+                ) : (
+                  <span className='nav-user-initials'>{initials}</span>
+                )}
+              </span>
+              <span className='nav-user-name'>{shortName}</span>
+            </Link>
+          )}
+
           <CartIcon />
         </div>
         {isCartOpen && <CartDropdown />}

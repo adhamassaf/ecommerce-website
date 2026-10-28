@@ -7,6 +7,7 @@ import Shop from './routes/shop/shop.component.jsx';
 import Checkout from './routes/checkout/checkout.component.jsx';
 import Orders from './routes/orders/orders.component.jsx';
 import OrderDetails from './routes/order-details/order-details.component.jsx';
+import Profile from './routes/profile/profile.component.jsx';
 import Admin from './routes/admin/admin.component.jsx';
 import AdminOverview from './routes/admin-overview/admin-overview.component.jsx';
 import AdminCategories from './routes/admin-categories/admin-categories.component.jsx';
@@ -25,6 +26,7 @@ const App = () => {
         <Route path='checkout' element={<Checkout />} />
         <Route path='orders' element={<Orders />} />
         <Route path='orders/:orderId' element={<OrderDetails />} />
+        <Route path='profile' element={<Profile />} />
         <Route path='admin' element={<Admin />}>
           <Route index element={<AdminOverview />} />
           <Route path='categories' element={<AdminCategories />} />
