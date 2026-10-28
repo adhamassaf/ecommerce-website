@@ -615,8 +615,30 @@
       color: var(--admin-gold-deep);
 
       svg {
-        transform: translateX(-4px);
+        transform: translateX(4px);
       }
+    }
+  }
+
+  html[dir='rtl'] & .admin-text-link {
+    svg {
+      transform: scaleX(-1);
+    }
+
+    &:hover svg {
+      transform: scaleX(-1) translateX(4px);
+    }
+  }
+
+  .admin-back-link {
+    svg {
+      transform: scaleX(-1);
+    }
+  }
+
+  html[dir='rtl'] & .admin-back-link {
+    svg {
+      transform: none;
     }
   }
 

@@ -165,7 +165,7 @@ const AdminProducts = () => {
 
   const handleDelete = async (product) => {
     const confirmed = window.confirm(
-      `حذف المنتج "${getLocalized(product.name, 'ar')}"؟`
+      `حذف المنتج "${getLocalized(product.name, language)}"؟`
     );
 
     if (!confirmed) return;
@@ -204,7 +204,7 @@ const AdminProducts = () => {
         >
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
-              {getLocalized(category.title, 'ar')}
+              {getLocalized(category.title, language)}
             </option>
           ))}
         </AdminField>
@@ -280,7 +280,7 @@ const AdminProducts = () => {
           <option value='all'>كل الأقسام</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
-              {category.title}
+              {getLocalized(category.title, language)}
             </option>
           ))}
         </AdminField>
@@ -311,19 +311,19 @@ const AdminProducts = () => {
                     <img
                       className='admin-thumb'
                       src={product.imageUrl}
-                      alt={getLocalized(product.name, 'ar')}
+                      alt={getLocalized(product.name, language)}
                     />
                   </td>
                   <td dir='auto'>
-                    {getLocalized(product.name, 'en')}
-                    {getLocalized(product.name, 'ar') !==
-                      getLocalized(product.name, 'en') && (
+                    {getLocalized(product.name, language)}
+                    {getLocalized(product.name, language === 'ar' ? 'en' : 'ar') !==
+                      getLocalized(product.name, language) && (
                       <div className='admin-hint'>
-                        {getLocalized(product.name, 'ar')}
+                        {getLocalized(product.name, language === 'ar' ? 'en' : 'ar')}
                       </div>
                     )}
                   </td>
-                  <td>{product.categoryTitle}</td>
+                  <td>{getLocalized(product.categoryTitle, language)}</td>
                   <td>${product.price}</td>
                   <td>
                     <div className='admin-actions'>
