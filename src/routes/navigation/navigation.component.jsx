@@ -13,6 +13,7 @@ import { LanguageContext } from '../../contexts/language.context.jsx';
 import { ReactComponent as CrwnLogo } from '../../assets/crown.svg';
 
 import { signOutUser } from '../../utils/firebase/firebase.utils.js';
+import ThemeControls from '../../components/theme-controls/theme-controls.component.jsx';
 
 import './navigation.styles.scss';
 
@@ -75,6 +76,7 @@ const Navigation = () => {
         </div>
 
         <div className='nav-end'>
+          <ThemeControls />
           <button
             type='button'
             className='nav-lang-btn'

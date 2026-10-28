@@ -17,7 +17,7 @@
     object-fit: cover;
     border-radius: 8px;
     flex-shrink: 0;
-    background: #f5f5f5;
+    background: var(--surface-soft);
   }
 
   .item-details {
@@ -42,7 +42,7 @@
 
     .price {
       font-size: 13px;
-      color: #666;
+      color: var(--text-muted);
     }
   }
 }

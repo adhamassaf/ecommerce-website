@@ -14,7 +14,7 @@
   max-width: 520px;
   max-height: calc(100vh - 40px);
   overflow: auto;
-  background: #fff;
+  background: var(--surface);
   border-radius: 16px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
   padding: 22px;
@@ -40,7 +40,7 @@
   height: 36px;
   border: none;
   border-radius: 50%;
-  background: #f3f3f3;
+  background: var(--surface-soft);
   font-size: 22px;
   cursor: pointer;
   line-height: 1;
@@ -59,7 +59,7 @@
   span {
     font-size: 13px;
     font-weight: 600;
-    color: #444;
+    color: var(--text-muted);
   }
 
   textarea {
@@ -67,20 +67,20 @@
     padding: 12px;
     font: inherit;
     font-size: 14px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     resize: vertical;
-    background: #fafafa;
+    background: var(--surface-soft);
 
     &:read-only {
-      color: #666;
-      background: #f5f5f5;
+      color: var(--text-muted);
+      background: var(--surface-soft);
     }
 
     &:focus {
       outline: none;
-      border-color: #111;
-      background: #fff;
+      border-color: var(--text);
+      background: var(--surface);
     }
   }
 }

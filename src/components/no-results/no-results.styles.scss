@@ -5,7 +5,7 @@
   gap: 18px;
   padding: 64px 24px;
   text-align: center;
-  background: #fafafa;
+  background: var(--surface-soft);
   border-radius: 16px;
   border: 1px dashed #ddd;
   margin-bottom: 40px;
@@ -13,6 +13,6 @@
   .no-results-message {
     font-size: 18px;
     font-weight: 500;
-    color: #555;
+    color: var(--text-muted);
   }
 }

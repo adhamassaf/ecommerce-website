@@ -1,8 +1,8 @@
 .product-filters-container {
   margin-bottom: 36px;
   padding: 18px 20px;
-  background: #fafafa;
-  border: 1px solid #eee;
+  background: var(--surface-soft);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
 
   .filters-row {
@@ -17,20 +17,20 @@
     padding: 0 14px;
     font-family: inherit;
     font-size: 14px;
-    color: #111;
-    background: #fff;
+    color: var(--text);
+    background: var(--surface);
     border: 1px solid #e0e0e0;
     border-radius: 10px;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
     &:focus {
       outline: none;
-      border-color: #111;
+      border-color: var(--text);
       box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
     }
 
     &::placeholder {
-      color: #999;
+      color: var(--text-muted);
     }
   }
 
@@ -62,9 +62,9 @@
     font-weight: 600;
     letter-spacing: 0.4px;
     text-transform: uppercase;
-    color: #111;
-    background: #fff;
-    border: 1px solid #111;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--brand);
     border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.15s ease, color 0.15s ease;
@@ -79,7 +79,7 @@
     display: block;
     margin-top: 14px;
     font-size: 13px;
-    color: #777;
+    color: var(--text-muted);
     font-weight: 500;
   }
 }

@@ -8,9 +8,9 @@
     gap: 18px;
     padding: 40px 24px;
     text-align: center;
-    background: #fafafa;
+    background: var(--surface-soft);
     border-radius: 16px;
-    border: 1px solid #ebebeb;
+    border: 1px solid var(--border-color);
     font-size: 18px;
   }
 
@@ -19,8 +19,8 @@
     flex-direction: column;
     gap: 22px;
     padding: 28px;
-    background: #fff;
-    border: 1px solid #ebebeb;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
   }
@@ -61,7 +61,7 @@
   .order-field-label {
     font-size: 13px;
     font-weight: 600;
-    color: #444;
+    color: var(--text-muted);
   }
 
   .order-field-control {
@@ -69,9 +69,9 @@
     padding: 12px 14px;
     font: inherit;
     font-size: 15px;
-    color: #111;
-    background-color: #fafafa;
-    border: 1px solid #ddd;
+    color: var(--text);
+    background-color: var(--surface-soft);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     transition: border-color 0.15s ease, background-color 0.15s ease,
       box-shadow 0.15s ease;
@@ -82,8 +82,8 @@
 
     &:focus {
       outline: none;
-      border-color: #111;
-      background-color: #fff;
+      border-color: var(--text);
+      background-color: var(--surface);
       box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
     }
   }
@@ -107,26 +107,26 @@
     cursor: pointer;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    background: #fafafa;
+    background: var(--surface-soft);
     transition: all 0.18s ease;
 
     input {
       margin-top: 3px;
       width: 18px;
       height: 18px;
-      accent-color: #111;
+      accent-color: var(--text);
       flex-shrink: 0;
     }
 
     &.selected {
-      border-color: #111;
-      background: #fff;
+      border-color: var(--text);
+      background: var(--surface);
       box-shadow: 0 0 0 1px #111;
     }
 
     &:hover:not(.selected) {
       border-color: #bbb;
-      background: #fff;
+      background: var(--surface);
     }
 
     &:focus-within {
@@ -147,7 +147,7 @@
 
     small {
       font-size: 12px;
-      color: #777;
+      color: var(--text-muted);
       line-height: 1.35;
     }
   }

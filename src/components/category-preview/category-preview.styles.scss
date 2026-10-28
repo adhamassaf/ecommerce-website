@@ -34,7 +34,7 @@
   gap: 6px;
   font-size: 14px;
   font-weight: 600;
-  color: #666;
+  color: var(--text-muted);
   text-decoration: none;
   transition: color 0.15s ease, gap 0.2s ease;
 
@@ -43,7 +43,7 @@
   }
 
   &:hover {
-    color: #111;
+    color: var(--text);
 
     span {
       transform: translateX(3px);

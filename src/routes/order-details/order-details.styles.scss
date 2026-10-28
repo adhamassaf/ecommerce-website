@@ -29,7 +29,7 @@
   }
 
   .order-details-date {
-    color: #666;
+    color: var(--text-muted);
   }
 
   .order-details-grid {
@@ -40,7 +40,7 @@
   }
 
   .order-items {
-    border: 1px solid black;
+    border: 1px solid var(--brand);
   }
 
   .order-item {
@@ -74,7 +74,7 @@
 
   .order-item-meta {
     font-size: 14px;
-    color: #666;
+    color: var(--text-muted);
   }
 
   .order-item-total {
@@ -84,7 +84,7 @@
 
   .order-summary {
     padding: 20px;
-    border: 1px solid black;
+    border: 1px solid var(--brand);
   }
 
   .order-summary-title {
@@ -99,7 +99,7 @@
       margin-top: 14px;
       font-size: 14px;
       font-weight: bold;
-      color: #666;
+      color: var(--text-muted);
     }
 
     dd {

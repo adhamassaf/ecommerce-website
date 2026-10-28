@@ -13,7 +13,7 @@
     padding: 10px 14px;
     border: 1px solid #e6e0d4;
     border-radius: 999px;
-    background: #fff;
+    background: var(--surface);
     color: #5c564c;
     font: inherit;
     font-size: 13px;
@@ -82,7 +82,7 @@
 
   .admin-user-name {
     font-weight: 600;
-    color: #222;
+    color: var(--text);
   }
 
   .admin-role-badge {

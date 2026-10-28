@@ -28,7 +28,7 @@
   .checkout-empty-text {
     margin: 0 0 16px;
     font-size: 16px;
-    color: #777;
+    color: var(--text-muted);
   }
 
   .checkout-layout {
@@ -60,12 +60,12 @@
 
   .checkout-count {
     font-size: 14px;
-    color: #888;
+    color: var(--text-muted);
   }
 
   .checkout-table {
-    background: #fff;
-    border: 1px solid #ebebeb;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
@@ -76,13 +76,13 @@
     grid-template-columns: 2.2fr 0.9fr 0.8fr 0.4fr;
     gap: 12px;
     padding: 14px 22px;
-    background: #fafafa;
-    border-bottom: 1px solid #eee;
+    background: var(--surface-soft);
+    border-bottom: 1px solid var(--border-color);
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    color: #888;
+    color: var(--text-muted);
   }
 
   .checkout-items {
@@ -96,14 +96,14 @@
     justify-content: space-between;
     margin-top: 20px;
     padding: 18px 22px;
-    background: #fafafa;
+    background: var(--surface-soft);
     border-radius: 12px;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-color);
   }
 
   .checkout-summary-label {
     font-size: 15px;
-    color: #555;
+    color: var(--text-muted);
     font-weight: 500;
   }
 

@@ -55,15 +55,6 @@
 }
 
 .admin-container {
-  --admin-ink: #17130f;
-  --admin-ink-soft: #3b342b;
-  --admin-muted: #7a7164;
-  --admin-line: #e7e1d4;
-  --admin-bg: #f7f4ee;
-  --admin-surface: #ffffff;
-  --admin-gold: #c9a24b;
-  --admin-gold-deep: #8a6a1f;
-  --admin-gold-soft: #fbf3df;
   --admin-danger: #c0392b;
   --admin-danger-soft: #fdeceb;
   --admin-success: #1f8a52;
@@ -97,7 +88,7 @@
     flex-shrink: 0;
     padding: 20px 18px;
     border-radius: 20px;
-    background: linear-gradient(180deg, #1f1a14 0%, #120f0b 100%);
+    background: linear-gradient(180deg, var(--admin-sidebar-start) 0%, var(--admin-sidebar-end) 100%);
     color: #efe9dc;
     box-shadow: var(--admin-shadow-hover);
     animation: admin-fade 0.5s var(--admin-ease) both;
@@ -164,7 +155,7 @@
     }
 
     &.active {
-      background-color: rgba(201, 162, 75, 0.18);
+      background-color: color-mix(in srgb, var(--admin-gold) 22%, transparent);
       color: #ffffff;
 
       .admin-nav-icon {
@@ -209,7 +200,7 @@
     height: 40px;
     flex-shrink: 0;
     border-radius: 50%;
-    background: linear-gradient(135deg, #e3c27a, var(--admin-gold));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--admin-gold) 70%, white), var(--admin-gold));
     color: #17130f;
     font-weight: 700;
   }
@@ -253,7 +244,7 @@
 
     &:hover {
       border-color: var(--admin-gold);
-      background-color: rgba(201, 162, 75, 0.14);
+      background-color: color-mix(in srgb, var(--admin-gold) 18%, transparent);
       color: #ffffff;
 
       svg {
