@@ -1,7 +1,7 @@
 .translation-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,6 +12,8 @@
 .translation-modal {
   width: 100%;
   max-width: 520px;
+  max-height: calc(100vh - 40px);
+  overflow: auto;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
@@ -42,6 +44,7 @@
   font-size: 22px;
   cursor: pointer;
   line-height: 1;
+  flex-shrink: 0;
 
   &:hover {
     background: #e8e8e8;

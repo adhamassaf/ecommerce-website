@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 import TranslationModal from '../translation-modal/translation-modal.component.jsx';
 import { normalizeLocaleValue } from '../../utils/i18n.js';
@@ -13,6 +14,7 @@ const AdminField = ({
   onLocaleChange,
   ...otherProps
 }) => {
+  const { t } = useContext(LanguageContext);
   const [open, setOpen] = useState(false);
   const normalized = normalizeLocaleValue(localeValue, otherProps.value || '');
 
@@ -49,7 +51,7 @@ const AdminField = ({
             className={`admin-translate-btn${
               normalized.ar && normalized.ar !== normalized.en ? ' has-translation' : ''
             }`}
-            title='Add / edit Arabic translation'
+            title={t('addEditArabicTranslation')}
             onClick={(event) => {
               event.preventDefault();
               setOpen(true);
@@ -74,9 +76,6 @@ const AdminField = ({
       {translatable && (
         <TranslationModal
           open={open}
-          title='Arabic translation'
-          sourceLabel='English'
-          targetLabel='العربية'
           sourceValue={normalized.en}
           targetValue={normalized.ar}
           onClose={() => setOpen(false)}

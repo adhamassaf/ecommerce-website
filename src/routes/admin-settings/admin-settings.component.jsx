@@ -137,7 +137,7 @@ const AdminSettings = () => {
         {(settings.announcementText?.en || settings.announcementText?.ar) && (
           <div className='admin-form-wide'>
             <p className='admin-meta'>{t('preview')}</p>
-            <div className='announcement-bar' dir='auto'>
+            <div className='admin-announcement-preview' dir='auto'>
               {getLocalized(settings.announcementText, language)}
             </div>
           </div>

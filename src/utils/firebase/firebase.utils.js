@@ -168,8 +168,20 @@ export const checkIsAdmin = async (uid) => {
   }
 };
 
+export const getAdminIds = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, 'admins'));
+    return new Set(snapshot.docs.map((docSnapshot) => docSnapshot.id));
+  } catch (error) {
+    return new Set();
+  }
+};
+
 export const getUserDocuments = async () => {
-  const querySnapshot = await getDocs(collection(db, 'users'));
+  const [querySnapshot, adminIds] = await Promise.all([
+    getDocs(collection(db, 'users')),
+    getAdminIds(),
+  ]);
 
   return querySnapshot.docs.map((docSnapshot) => {
     const data = docSnapshot.data();
@@ -178,6 +190,9 @@ export const getUserDocuments = async () => {
       id: docSnapshot.id,
       email: data.email || '',
       displayName: data.displayName || '',
+      phone: data.phone || '',
+      photoURL: data.photoURL || '',
+      isAdmin: adminIds.has(docSnapshot.id),
       createdAt:
         data.createdAt && typeof data.createdAt.toDate === 'function'
           ? data.createdAt.toDate()
