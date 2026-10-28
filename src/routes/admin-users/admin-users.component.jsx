@@ -153,9 +153,11 @@ const AdminUsers = () => {
                         <td dir='ltr'>{user.phone || '-'}</td>
                         <td dir='ltr'>
                           {user.createdAt
-                            ? user.createdAt.toLocaleDateString(
-                                language === 'ar' ? 'ar' : 'en-GB'
-                              )
+                            ? user.createdAt.toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                              })
                             : '-'}
                         </td>
                       </tr>
