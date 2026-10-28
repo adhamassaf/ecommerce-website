@@ -62,53 +62,76 @@ const ProductDetails = () => {
   return (
     <Fragment>
       <div className='product-details-container'>
-        <div className='product-image'>
-          <img src={imageUrl} alt={name} />
+        <div className='product-image-wrap'>
+          <div className='product-image'>
+            <img src={imageUrl} alt={name} />
+          </div>
         </div>
+
         <div className='product-info'>
-          <div className='breadcrumb'>
+          <nav className='breadcrumb' aria-label='Breadcrumb'>
             <Link to='/shop'>Shop</Link>
             <span className='separator'>/</span>
-            <Link to={`/shop/${category}`}>{category.toUpperCase()}</Link>
-          </div>
+            <Link to={`/shop/${category}`}>{category}</Link>
+          </nav>
+
           <h1 className='product-name'>{name}</h1>
           <span className='product-price'>${price}</span>
-          <div className='quantity-selector'>
-            <button
-              type='button'
-              className='quantity-button'
-              onClick={decreaseQuantity}
-              disabled={quantity === 1}
-              aria-label='Decrease quantity'
+
+          <div className='product-actions'>
+            <div className='quantity-selector'>
+              <button
+                type='button'
+                className='quantity-button'
+                onClick={decreaseQuantity}
+                disabled={quantity === 1}
+                aria-label='Decrease quantity'
+              >
+                −
+              </button>
+              <span className='quantity-value'>{quantity}</span>
+              <button
+                type='button'
+                className='quantity-button'
+                onClick={increaseQuantity}
+                disabled={quantity === MAX_QUANTITY}
+                aria-label='Increase quantity'
+              >
+                +
+              </button>
+            </div>
+
+            <Button
+              className={isAdded ? 'added' : ''}
+              onClick={addToCartHandler}
             >
-              &#8722;
-            </button>
-            <span className='quantity-value'>{quantity}</span>
-            <button
-              type='button'
-              className='quantity-button'
-              onClick={increaseQuantity}
-              disabled={quantity === MAX_QUANTITY}
-              aria-label='Increase quantity'
-            >
-              +
-            </button>
+              {isAdded ? 'Added to cart ✓' : 'Add to cart'}
+            </Button>
           </div>
-          <Button onClick={addToCartHandler}>
-            {isAdded ? 'Added to cart' : 'Add to cart'}
-          </Button>
-          <span className='total-price'>Total: ${price * quantity}</span>
+
+          <div className='product-meta'>
+            <span className='total-price'>
+              Total <strong>${price * quantity}</strong>
+            </span>
+          </div>
         </div>
       </div>
+
       {relatedProducts.length > 0 && (
-        <div className='related-products'>
-          <h2 className='related-title'>MORE FROM {category.toUpperCase()}</h2>
+        <section className='related-products'>
+          <div className='related-header'>
+            <h2 className='related-title'>More from {category}</h2>
+            <Link className='related-link' to={`/shop/${category}`}>
+              View all
+              <span aria-hidden='true'>→</span>
+            </Link>
+          </div>
           <div className='related-grid'>
             {relatedProducts.map((item) => (
               <ProductCard key={item.id} product={item} category={category} />
             ))}
           </div>
-        </div>
+        </section>
       )}
     </Fragment>
   );
