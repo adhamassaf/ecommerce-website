@@ -56,7 +56,14 @@ const Orders = () => {
 
   return (
     <div className='orders-container'>
-      <h1 className='orders-title'>My orders</h1>
+      <div className='orders-header'>
+        <h1 className='orders-title'>My orders</h1>
+        {orders.length > 0 && (
+          <p className='orders-subtitle'>
+            {orders.length} {orders.length === 1 ? 'order' : 'orders'}
+          </p>
+        )}
+      </div>
 
       {errorMessage && (
         <div className='orders-error' role='alert'>
@@ -66,7 +73,9 @@ const Orders = () => {
 
       {!errorMessage && orders.length === 0 && (
         <div className='orders-empty'>
-          <span>You have not placed any orders yet.</span>
+          <div className='orders-empty-icon'>📦</div>
+          <h2>No orders yet</h2>
+          <p>You haven&apos;t placed any orders. Start exploring our collection.</p>
           <Button type='button' onClick={() => navigate('/shop')}>
             Start shopping
           </Button>
@@ -78,22 +87,29 @@ const Orders = () => {
           {orders.map((order) => (
             <Link
               key={order.id}
-              className='order-row'
+              className='order-card'
               to={`/orders/${order.id}`}
             >
-              <div className='order-row-main'>
-                <span className='order-row-number'>
+              <div className='order-card-left'>
+                <span className='order-number'>
                   {formatOrderNumber(order.id)}
                 </span>
-                <span className='order-row-date'>
+                <span className='order-date'>
                   {formatOrderDate(order.createdAt)}
                 </span>
               </div>
-              <span className='order-row-items'>
-                {order.itemsCount} {order.itemsCount === 1 ? 'item' : 'items'}
-              </span>
-              <span className='order-row-total'>{formatMoney(order.total)}</span>
-              <OrderStatusBadge status={order.status} />
+
+              <div className='order-card-meta'>
+                <span className='order-items'>
+                  {order.itemsCount} {order.itemsCount === 1 ? 'item' : 'items'}
+                </span>
+                <span className='order-total'>{formatMoney(order.total)}</span>
+              </div>
+
+              <div className='order-card-right'>
+                <OrderStatusBadge status={order.status} />
+                <span className='order-arrow'>→</span>
+              </div>
             </Link>
           ))}
         </div>

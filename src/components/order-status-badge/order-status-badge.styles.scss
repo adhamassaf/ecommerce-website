@@ -1,41 +1,42 @@
 .order-status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 4px 12px;
+  gap: 6px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
   white-space: nowrap;
-  color: #5c4400;
-  background-color: #fff3cd;
+  color: #8a6d00;
+  background-color: #fff8e1;
   transition: transform 0.2s ease;
 
   &::before {
     content: '';
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background-color: currentColor;
   }
 
   &.processing {
     color: #0b4a8a;
-    background-color: #e3f0fd;
+    background-color: #e8f1fc;
   }
 
   &.shipped {
     color: #55318f;
-    background-color: #efe7fb;
+    background-color: #f0e9fb;
   }
 
   &.delivered {
-    color: #1e6b3a;
-    background-color: #e3f5e9;
+    color: #1a6b38;
+    background-color: #e5f6ec;
   }
 
   &.cancelled {
-    color: #8a1c14;
+    color: #9b1c14;
     background-color: #fdeceb;
   }
 }

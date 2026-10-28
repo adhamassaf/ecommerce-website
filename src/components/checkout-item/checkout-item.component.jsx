@@ -16,23 +16,46 @@ const CheckoutItem = ({ cartItem }) => {
 
   return (
     <div className='checkout-item-container'>
-      <div className='image-container'>
-        <img src={imageUrl} alt={`${name}`} />
-      </div>
-      <span className='name'> {name} </span>
-      <span className='quantity'>
-        <div className='arrow' onClick={removeItemHandler}>
-          &#10094;
+      <div className='checkout-item-product'>
+        <div className='image-container'>
+          <img src={imageUrl} alt={name} />
         </div>
+        <div className='product-info'>
+          <span className='name'>{name}</span>
+          <span className='unit-price'>${price}</span>
+        </div>
+      </div>
+
+      <div className='quantity'>
+        <button
+          type='button'
+          className='qty-btn'
+          onClick={removeItemHandler}
+          aria-label='Decrease quantity'
+        >
+          −
+        </button>
         <span className='value'>{quantity}</span>
-        <div className='arrow' onClick={addItemHandler}>
-          &#10095;
-        </div>
-      </span>
-      <span className='price'> {price}</span>
-      <div className='remove-button' onClick={clearItemHandler}>
-        &#10005;
+        <button
+          type='button'
+          className='qty-btn'
+          onClick={addItemHandler}
+          aria-label='Increase quantity'
+        >
+          +
+        </button>
       </div>
+
+      <span className='price'>${price * quantity}</span>
+
+      <button
+        type='button'
+        className='remove-button'
+        onClick={clearItemHandler}
+        aria-label={`Remove ${name}`}
+      >
+        ×
+      </button>
     </div>
   );
 };
