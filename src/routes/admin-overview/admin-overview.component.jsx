@@ -15,13 +15,16 @@ import {
 } from '../../components/admin-icons/admin-icons.component.jsx';
 
 import { CategoriesContext } from '../../contexts/categories.context.jsx';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 import {
   getOrdersCount,
   getUsersCount,
 } from '../../utils/firebase/firebase.utils.js';
+import { getLocalized } from '../../utils/i18n.js';
 
 const AdminOverview = () => {
   const { categories, isLoading, error } = useContext(CategoriesContext);
+  const { language, t } = useContext(LanguageContext);
   const [usersCount, setUsersCount] = useState(null);
   const [ordersCount, setOrdersCount] = useState(null);
 
@@ -71,35 +74,35 @@ const AdminOverview = () => {
       tone: 'gold',
       Icon: CategoriesIcon,
       value: categories.length,
-      label: 'قسم',
+      label: t('categoriesCount'),
     },
     {
       key: 'products',
       tone: 'blue',
       Icon: ProductsIcon,
       value: stats.total,
-      label: 'منتج',
+      label: t('productsCount'),
     },
     {
       key: 'users',
       tone: 'green',
       Icon: UsersIcon,
       value: usersCount === null ? '-' : usersCount,
-      label: 'مستخدم مسجّل',
+      label: t('usersCount'),
     },
     {
       key: 'orders',
       tone: 'violet',
       Icon: OrdersIcon,
       value: ordersCount === null ? '-' : ordersCount,
-      label: 'طلب',
+      label: t('ordersCount'),
     },
     {
       key: 'price',
       tone: 'rose',
       Icon: PriceIcon,
       value: `$${stats.average.toFixed(2)}`,
-      label: 'متوسط سعر المنتج',
+      label: t('avgProductPrice'),
     },
   ];
 
@@ -110,7 +113,7 @@ const AdminOverview = () => {
 
   return (
     <div>
-      <h1 className='admin-title'>نظرة عامة</h1>
+      <h1 className='admin-title'>{t('adminOverview')}</h1>
 
       <div className='admin-stats'>
         {statCards.map(({ key, tone, Icon, value, label }, index) => (
@@ -133,44 +136,44 @@ const AdminOverview = () => {
       </div>
 
       <section className='admin-panel'>
-        <h2 className='admin-panel-title'>إجراءات سريعة</h2>
+        <h2 className='admin-panel-title'>{t('quickActions')}</h2>
         <div className='admin-quick-links'>
           <Link className='admin-button' to='/admin/products'>
             <PlusIcon size={18} />
-            إضافة منتج
+            {t('addProduct')}
           </Link>
           <Link className='admin-button secondary' to='/admin/orders'>
             <OrdersIcon size={18} />
-            عرض الطلبات
+            {t('viewOrders')}
           </Link>
           <Link className='admin-button secondary' to='/admin/categories'>
             <PlusIcon size={18} />
-            إضافة قسم
+            {t('addCategory')}
           </Link>
           <Link className='admin-button secondary' to='/admin/settings'>
             <SettingsIcon size={18} />
-            تعديل شريط الإعلان
+            {t('editAnnouncement')}
           </Link>
         </div>
       </section>
 
-      <h2 className='admin-panel-title'>المنتجات حسب القسم</h2>
+      <h2 className='admin-panel-title'>{t('productsByCategory')}</h2>
       {categories.length === 0 ? (
-        <div className='admin-empty'>لا توجد أقسام بعد.</div>
+        <div className='admin-empty'>{t('noCategoriesYet')}</div>
       ) : (
         <div className='admin-table-wrapper'>
           <table className='admin-table'>
             <thead>
               <tr>
-                <th>القسم</th>
-                <th>عدد المنتجات</th>
-                <th>عرض في المتجر</th>
+                <th>{t('category')}</th>
+                <th>{t('productCount')}</th>
+                <th>{t('viewInStore')}</th>
               </tr>
             </thead>
             <tbody>
               {categories.map((category) => (
                 <tr key={category.id}>
-                  <td>{category.title}</td>
+                  <td>{getLocalized(category.title, language)}</td>
                   <td>
                     <div className='admin-bar-cell'>
                       <span>{category.items.length}</span>
@@ -189,7 +192,7 @@ const AdminOverview = () => {
                       className='admin-text-link'
                       to={`/shop/${category.id}`}
                     >
-                      فتح القسم
+                      {t('open')}
                       <ArrowIcon size={16} />
                     </Link>
                   </td>

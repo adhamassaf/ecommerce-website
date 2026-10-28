@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 import FormInput from '../form-input/form-input.component.jsx';
 import Button from '../button/button.component.jsx';
+
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 import {
   createAuthUserWithEmailAndPassword,
@@ -10,8 +12,6 @@ import {
 
 import './sign-up-form.styles.scss';
 
-const MIN_PASSWORD_LENGTH = 6;
-
 const defaultFormFields = {
   displayName: '',
   email: '',
@@ -19,26 +19,25 @@ const defaultFormFields = {
   confirmPassword: '',
 };
 
-const getErrorMessage = (error) => {
-  switch (error.code) {
-    case 'auth/email-already-in-use':
-      return 'This email is already in use';
-    case 'auth/invalid-email':
-      return 'Please enter a valid email address';
-    case 'auth/weak-password':
-      return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
-    case 'auth/network-request-failed':
-      return 'Network error, check your connection';
-    default:
-      return 'Could not create the account, please try again';
-  }
-};
-
 const SignUpForm = () => {
+  const { t } = useContext(LanguageContext);
   const [formFields, setFormFields] = useState(defaultFormFields);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { displayName, email, password, confirmPassword } = formFields;
+
+  const getErrorMessage = (error) => {
+    switch (error.code) {
+      case 'auth/email-already-in-use':
+        return t('authEmailInUse');
+      case 'auth/weak-password':
+        return t('authWeakPassword');
+      case 'auth/network-request-failed':
+        return t('authNetwork');
+      default:
+        return t('authSignUpFailed');
+    }
+  };
 
   const resetFormFields = () => {
     setFormFields(defaultFormFields);
@@ -48,34 +47,16 @@ const SignUpForm = () => {
     event.preventDefault();
     setErrorMessage('');
 
-    if (!displayName.trim()) {
-      setErrorMessage('Please enter your name');
-      return;
-    }
-
     if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match');
-      return;
-    }
-
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      setErrorMessage(
-        `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
-      );
+      setErrorMessage(t('authPasswordMismatch'));
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const { user } = await createAuthUserWithEmailAndPassword(
-        email,
-        password
-      );
-
-      await createUserDocumentFromAuth(user, {
-        displayName: displayName.trim(),
-      });
+      const { user } = await createAuthUserWithEmailAndPassword(email, password);
+      await createUserDocumentFromAuth(user, { displayName });
       resetFormFields();
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
@@ -86,49 +67,52 @@ const SignUpForm = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
     setFormFields({ ...formFields, [name]: value });
   };
 
   return (
     <div className='sign-up-container'>
-      <h2>Don't have an account?</h2>
-      <span>Sign up with your email and password</span>
+      <h2>{t('dontHaveAccount')}</h2>
+      <span>{t('signUpSubtitle')}</span>
       <form onSubmit={handleSubmit}>
         <FormInput
-          label='Display Name'
+          label={t('displayName')}
           type='text'
           required
           onChange={handleChange}
           name='displayName'
           value={displayName}
+          autoComplete='name'
         />
 
         <FormInput
-          label='Email'
+          label={t('email')}
           type='email'
           required
           onChange={handleChange}
           name='email'
           value={email}
+          autoComplete='email'
         />
 
         <FormInput
-          label='Password'
+          label={t('password')}
           type='password'
           required
           onChange={handleChange}
           name='password'
           value={password}
+          autoComplete='new-password'
         />
 
         <FormInput
-          label='Confirm Password'
+          label={t('confirmPassword')}
           type='password'
           required
           onChange={handleChange}
           name='confirmPassword'
           value={confirmPassword}
+          autoComplete='new-password'
         />
         {errorMessage && (
           <span className='error-message' role='alert'>
@@ -136,7 +120,7 @@ const SignUpForm = () => {
           </span>
         )}
         <Button type='submit' disabled={isSubmitting}>
-          {isSubmitting ? 'Creating account...' : 'Sign Up'}
+          {isSubmitting ? t('creatingAccount') : t('signUpBtn')}
         </Button>
       </form>
     </div>

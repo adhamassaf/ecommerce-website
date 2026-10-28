@@ -6,6 +6,7 @@ import OrderStatusBadge from '../../components/order-status-badge/order-status-b
 import Spinner from '../../components/spinner/spinner.component.jsx';
 
 import { UserContext } from '../../contexts/user.context.jsx';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 import { getUserOrders } from '../../utils/firebase/firebase.utils.js';
 import {
@@ -18,6 +19,7 @@ import './orders.styles.scss';
 
 const Orders = () => {
   const { currentUser, isAuthReady } = useContext(UserContext);
+  const { language, t } = useContext(LanguageContext);
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +37,7 @@ const Orders = () => {
         if (isActive) setOrders(documents);
       })
       .catch(() => {
-        if (isActive) setErrorMessage('Could not load your orders, please try again.');
+        if (isActive) setErrorMessage(t('couldNotLoadOrders'));
       })
       .finally(() => {
         if (isActive) setIsLoading(false);
@@ -44,7 +46,7 @@ const Orders = () => {
     return () => {
       isActive = false;
     };
-  }, [userId]);
+  }, [userId, t]);
 
   if (!isAuthReady) return <Spinner />;
 
@@ -57,10 +59,11 @@ const Orders = () => {
   return (
     <div className='orders-container'>
       <div className='orders-header'>
-        <h1 className='orders-title'>My orders</h1>
+        <h1 className='orders-title'>{t('myOrdersTitle')}</h1>
         {orders.length > 0 && (
           <p className='orders-subtitle'>
-            {orders.length} {orders.length === 1 ? 'order' : 'orders'}
+            {orders.length}{' '}
+            {orders.length === 1 ? t('orderSingular') : t('orderPlural')}
           </p>
         )}
       </div>
@@ -74,10 +77,10 @@ const Orders = () => {
       {!errorMessage && orders.length === 0 && (
         <div className='orders-empty'>
           <div className='orders-empty-icon'>📦</div>
-          <h2>No orders yet</h2>
-          <p>You haven&apos;t placed any orders. Start exploring our collection.</p>
+          <h2>{t('noOrdersYet')}</h2>
+          <p>{t('noOrdersHint')}</p>
           <Button type='button' onClick={() => navigate('/shop')}>
-            Start shopping
+            {t('startShopping')}
           </Button>
         </div>
       )}
@@ -91,24 +94,29 @@ const Orders = () => {
               to={`/orders/${order.id}`}
             >
               <div className='order-card-left'>
-                <span className='order-number'>
+                <span className='order-number' dir='ltr'>
                   {formatOrderNumber(order.id)}
                 </span>
                 <span className='order-date'>
-                  {formatOrderDate(order.createdAt)}
+                  {formatOrderDate(order.createdAt, language)}
                 </span>
               </div>
 
               <div className='order-card-meta'>
                 <span className='order-items'>
-                  {order.itemsCount} {order.itemsCount === 1 ? 'item' : 'items'}
+                  {order.itemsCount}{' '}
+                  {order.itemsCount === 1 ? t('item') : t('items')}
                 </span>
-                <span className='order-total'>{formatMoney(order.total)}</span>
+                <span className='order-total' dir='ltr'>
+                  {formatMoney(order.total)}
+                </span>
               </div>
 
               <div className='order-card-right'>
                 <OrderStatusBadge status={order.status} />
-                <span className='order-arrow'>→</span>
+                <span className='order-arrow' aria-hidden='true'>
+                  →
+                </span>
               </div>
             </Link>
           ))}

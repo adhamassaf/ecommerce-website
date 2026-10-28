@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 
 import { CategoriesContext } from '../../contexts/categories.context.jsx';
 import { CartContext } from '../../contexts/cart.context.jsx';
+import { LanguageContext } from '../../contexts/language.context.jsx';
+import { getLocalized } from '../../utils/i18n.js';
 
 import Button from '../../components/button/button.component.jsx';
 import ProductCard from '../../components/product-card/product-card.component.jsx';
@@ -15,8 +17,10 @@ const MAX_QUANTITY = 99;
 
 const ProductDetails = () => {
   const { category, productId } = useParams();
-  const { categoriesMap, isLoading, error } = useContext(CategoriesContext);
+  const { categories, categoriesMap, isLoading, error } =
+    useContext(CategoriesContext);
   const { addItemToCart } = useContext(CartContext);
+  const { language, t } = useContext(LanguageContext);
 
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
@@ -44,7 +48,12 @@ const ProductDetails = () => {
 
   if (!product) return <StatusMessage message='Product not found' />;
 
-  const { name, price, imageUrl } = product;
+  const name = getLocalized(product.name, language);
+  const { price, imageUrl } = product;
+  const categoryLabel = getLocalized(
+    categories.find((item) => item.id === category)?.title || category,
+    language
+  );
 
   const relatedProducts = products
     .filter((item) => item.id !== product.id)
@@ -56,7 +65,7 @@ const ProductDetails = () => {
     setQuantity((value) => Math.min(MAX_QUANTITY, value + 1));
 
   const addToCartHandler = () => {
-    addItemToCart(product, quantity);
+    addItemToCart({ ...product, name }, quantity);
     setIsAdded(true);
   };
 
@@ -71,9 +80,9 @@ const ProductDetails = () => {
 
         <div className='product-info'>
           <nav className='breadcrumb' aria-label='Breadcrumb'>
-            <Link to='/shop'>Shop</Link>
+            <Link to='/shop'>{t('shop')}</Link>
             <span className='separator'>/</span>
-            <Link to={`/shop/${category}`}>{category}</Link>
+            <Link to={`/shop/${category}`}>{categoryLabel}</Link>
           </nav>
 
           <h1 className='product-name'>{name}</h1>
@@ -106,13 +115,13 @@ const ProductDetails = () => {
               className={isAdded ? 'added' : ''}
               onClick={addToCartHandler}
             >
-              {isAdded ? 'Added to cart ✓' : 'Add to cart'}
+              {isAdded ? t('addedToCart') : t('addToCart')}
             </Button>
           </div>
 
           <div className='product-meta'>
             <span className='total-price'>
-              Total <strong>${price * quantity}</strong>
+              {t('total')} <strong>${price * quantity}</strong>
             </span>
           </div>
         </div>
@@ -121,9 +130,11 @@ const ProductDetails = () => {
       {relatedProducts.length > 0 && (
         <section className='related-products'>
           <div className='related-header'>
-            <h2 className='related-title'>More from {category}</h2>
+            <h2 className='related-title'>
+              {t('moreFrom')} {categoryLabel}
+            </h2>
             <Link className='related-link' to={`/shop/${category}`}>
-              View all
+              {t('viewAll')}
               <span aria-hidden='true'>→</span>
             </Link>
           </div>

@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { CartContext } from '../../contexts/cart.context.jsx';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 import Button from '../../components/button/button.component.jsx';
 import CheckoutItem from '../../components/checkout-item/checkout-item.component.jsx';
@@ -14,6 +15,7 @@ import './checkout.styles.scss';
 
 const Checkout = () => {
   const { cartItems, cartTotal } = useContext(CartContext);
+  const { t } = useContext(LanguageContext);
   const navigate = useNavigate();
 
   if (cartItems.length === 0) {
@@ -21,12 +23,9 @@ const Checkout = () => {
       <div className='checkout-container checkout-empty'>
         <div className='checkout-empty-content'>
           <div className='checkout-empty-icon'>🛍️</div>
-          <StatusMessage message='Your cart is empty' />
-          <p className='checkout-empty-text'>
-            Looks like you haven&apos;t added anything yet.
-          </p>
+          <StatusMessage message={t('yourCartEmpty')} />
           <Button type='button' onClick={() => navigate('/shop')}>
-            Continue shopping
+            {t('continueShopping')}
           </Button>
         </div>
       </div>
@@ -38,17 +37,18 @@ const Checkout = () => {
       <div className='checkout-layout'>
         <section className='checkout-cart'>
           <div className='checkout-section-header'>
-            <h1 className='checkout-title'>Shopping cart</h1>
+            <h1 className='checkout-title'>{t('shoppingCart')}</h1>
             <span className='checkout-count'>
-              {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
+              {cartItems.length}{' '}
+              {cartItems.length === 1 ? t('item') : t('items')}
             </span>
           </div>
 
           <div className='checkout-table'>
             <div className='checkout-header'>
-              <span className='header-product'>Product</span>
-              <span className='header-qty'>Qty</span>
-              <span className='header-price'>Price</span>
+              <span className='header-product'>{t('productCol')}</span>
+              <span className='header-qty'>{t('qtyCol')}</span>
+              <span className='header-price'>{t('priceCol')}</span>
               <span className='header-remove'></span>
             </div>
 
@@ -60,8 +60,10 @@ const Checkout = () => {
           </div>
 
           <div className='checkout-summary'>
-            <span className='checkout-summary-label'>Subtotal</span>
-            <span className='checkout-summary-value'>{formatMoney(cartTotal)}</span>
+            <span className='checkout-summary-label'>{t('subtotal')}</span>
+            <span className='checkout-summary-value'>
+              {formatMoney(cartTotal)}
+            </span>
           </div>
         </section>
 

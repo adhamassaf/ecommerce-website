@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useContext, useEffect, useMemo, useState } from 'react';
 
 import OrderStatusBadge from '../../components/order-status-badge/order-status-badge.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
@@ -17,9 +17,12 @@ import {
   formatOrderNumber,
 } from '../../utils/orders.js';
 
+import { LanguageContext } from '../../contexts/language.context.jsx';
+
 import './admin-orders.styles.scss';
 
 const AdminOrders = () => {
+  const { language, t } = useContext(LanguageContext);
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -82,7 +85,7 @@ const AdminOrders = () => {
 
   return (
     <div>
-      <h1 className='admin-title'>الطلبات</h1>
+      <h1 className='admin-title'>{t('ordersTitle')}</h1>
 
       {errorMessage && (
         <div className='admin-alert error' role='alert'>
@@ -107,7 +110,7 @@ const AdminOrders = () => {
                 <option value='all'>كل الطلبات</option>
                 {ORDER_STATUSES.map((status) => (
                   <option key={status} value={status}>
-                    {ORDER_STATUS_LABELS.ar[status]}
+                    {ORDER_STATUS_LABELS[language]?.[status] || ORDER_STATUS_LABELS.en[status]}
                   </option>
                 ))}
               </select>
@@ -160,7 +163,7 @@ const AdminOrders = () => {
                             >
                               {ORDER_STATUSES.map((status) => (
                                 <option key={status} value={status}>
-                                  {ORDER_STATUS_LABELS.ar[status]}
+                                  {ORDER_STATUS_LABELS[language]?.[status] || ORDER_STATUS_LABELS.en[status]}
                                 </option>
                               ))}
                             </select>

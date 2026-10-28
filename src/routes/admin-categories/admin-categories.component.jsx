@@ -14,12 +14,15 @@ import { getCategoryImage } from '../../utils/category-defaults.js';
 import { getAdminErrorMessage } from '../../utils/admin-errors.js';
 import { isValidUrl } from '../../utils/is-valid-url.js';
 import { slugify } from '../../utils/slugify.js';
+import { getLocalized, normalizeLocaleValue } from '../../utils/i18n.js';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
-const EMPTY_FORM = { title: '', imageUrl: '', order: '' };
+const EMPTY_FORM = { title: { en: '', ar: '' }, imageUrl: '', order: '' };
 
 const AdminCategories = () => {
   const { categories, isLoading, error, refreshCategories } =
     useContext(CategoriesContext);
+  const { language, t } = useContext(LanguageContext);
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
@@ -36,14 +39,14 @@ const AdminCategories = () => {
   };
 
   const resetForm = () => {
-    setForm(EMPTY_FORM);
+    setForm({ title: { en: '', ar: '' }, imageUrl: '', order: '' });
     setEditingId(null);
   };
 
   const startEditing = (category) => {
     setEditingId(category.id);
     setForm({
-      title: category.title,
+      title: normalizeLocaleValue(category.title),
       imageUrl: category.imageUrl,
       order: category.order === null ? '' : String(category.order),
     });
@@ -54,13 +57,14 @@ const AdminCategories = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const title = form.title.trim();
+    const title = normalizeLocaleValue(form.title);
+    const titleEn = title.en.trim();
     const imageUrl = form.imageUrl.trim();
-    const id = editingId || slugify(title);
+    const id = editingId || slugify(titleEn);
     const order = form.order.trim() === '' ? null : Number(form.order);
 
-    if (!title || !id) {
-      setFeedback({ type: 'error', text: 'اكتب اسماً صالحاً للقسم.' });
+    if (!titleEn || !id) {
+      setFeedback({ type: 'error', text: 'اكتب اسماً صالحاً للقسم (بالإنجليزية).' });
       return;
     }
 
@@ -88,7 +92,11 @@ const AdminCategories = () => {
     try {
       await saveCategoryDocument(
         id,
-        { title, imageUrl, order },
+        {
+          title: { en: titleEn, ar: title.ar.trim() || titleEn },
+          imageUrl,
+          order,
+        },
         { isNew: !editingId }
       );
       await refreshCategories();
@@ -106,7 +114,7 @@ const AdminCategories = () => {
 
   const handleDelete = async (category) => {
     const confirmed = window.confirm(
-      `سيتم حذف القسم "${category.title}" مع جميع منتجاته (${category.items.length}). هل تريد المتابعة؟`
+      `سيتم حذف القسم "${getLocalized(category.title, language)}" مع جميع منتجاته (${category.items.length}). هل تريد المتابعة؟`
     );
 
     if (!confirmed) return;
@@ -125,7 +133,7 @@ const AdminCategories = () => {
 
   return (
     <div>
-      <h1 className='admin-title'>الأقسام</h1>
+      <h1 className='admin-title'>{t('adminCategories')}</h1>
 
       {feedback && (
         <div className={`admin-alert ${feedback.type}`} role='alert'>
@@ -135,20 +143,29 @@ const AdminCategories = () => {
 
       <form className='admin-panel admin-form' onSubmit={handleSubmit}>
         <h2 className='admin-panel-title admin-form-wide'>
-          {editingId ? 'تعديل القسم' : 'إضافة قسم جديد'}
+          {editingId ? t('editCategory') : t('newCategory')}
         </h2>
         <AdminField
-          label='اسم القسم'
+          label={t('categoryNameEn')}
           type='text'
-          dir='auto'
-          value={form.title}
-          onChange={handleChange('title')}
+          dir='ltr'
+          value={form.title?.en || ''}
+          localeValue={form.title}
+          translatable
+          onLocaleChange={(next) =>
+            setForm((previous) => ({ ...previous, title: next }))
+          }
+          onChange={() => {}}
           readOnly={Boolean(editingId)}
-          hint={editingId ? 'لا يمكن تغيير اسم القسم بعد إنشائه.' : undefined}
+          hint={
+            editingId
+              ? 'لا يمكن تغيير مفتاح القسم بعد إنشائه. يمكن تعديل الترجمة العربية عبر 🌐'
+              : 'الاسم الإنجليزي يُستخدم في الرابط. اضغط 🌐 لإضافة الترجمة العربية.'
+          }
           required
         />
         <AdminField
-          label='رابط صورة القسم'
+          label={t('categoryImageUrl')}
           type='url'
           dir='ltr'
           value={form.imageUrl}
@@ -156,16 +173,16 @@ const AdminCategories = () => {
           hint='تظهر في الصفحة الرئيسية. إذا تُرك فارغاً تُستخدم صورة افتراضية.'
         />
         <AdminField
-          label='الترتيب'
+          label={t('categoryOrder')}
           type='number'
           step='1'
           value={form.order}
           onChange={handleChange('order')}
-          hint='الأرقام الأصغر تظهر أولاً. الأقسام الأساسية تحتل من 0 إلى 4.'
+          hint={t('categoryOrderHint')}
         />
         <div className='admin-form-actions'>
           <button className='admin-button' type='submit' disabled={isSaving}>
-            {isSaving ? 'جارٍ الحفظ...' : editingId ? 'حفظ التعديلات' : 'إضافة القسم'}
+            {isSaving ? t('saving') : editingId ? t('saveCategory') : t('addCategoryBtn')}
           </button>
           {editingId && (
             <button
@@ -174,25 +191,25 @@ const AdminCategories = () => {
               onClick={resetForm}
               disabled={isSaving}
             >
-              إلغاء التعديل
+              {t('cancelEdit')}
             </button>
           )}
         </div>
       </form>
 
       {categories.length === 0 ? (
-        <div className='admin-empty'>لا توجد أقسام بعد. أضف أول قسم من النموذج أعلاه.</div>
+        <div className='admin-empty'>{t('noCategoriesYet')}</div>
       ) : (
         <div className='admin-table-wrapper'>
           <table className='admin-table'>
             <thead>
               <tr>
-                <th>الصورة</th>
-                <th>القسم</th>
-                <th>الرابط</th>
-                <th>الترتيب</th>
-                <th>المنتجات</th>
-                <th>إجراءات</th>
+                <th>{t('image')}</th>
+                <th>{t('category')}</th>
+                <th>{t('link')}</th>
+                <th>{t('categoryOrder')}</th>
+                <th>{t('productCount')}</th>
+                <th>{t('actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -202,10 +219,17 @@ const AdminCategories = () => {
                     <img
                       className='admin-thumb'
                       src={getCategoryImage(category)}
-                      alt={category.title}
+                      alt={getLocalized(category.title, language)}
                     />
                   </td>
-                  <td>{category.title}</td>
+                  <td>
+                    {getLocalized(category.title, language)}
+                    {getLocalized(category.title, 'ar') !== getLocalized(category.title, 'en') && (
+                      <div className='admin-hint' dir='auto'>
+                        {language === 'ar' ? getLocalized(category.title, 'en') : getLocalized(category.title, 'ar')}
+                      </div>
+                    )}
+                  </td>
                   <td dir='ltr'>
                     <Link to={`/shop/${category.id}`}>/shop/{category.id}</Link>
                   </td>
@@ -218,14 +242,14 @@ const AdminCategories = () => {
                         type='button'
                         onClick={() => startEditing(category)}
                       >
-                        تعديل
+                        {t('edit')}
                       </button>
                       <button
                         className='admin-link-button danger'
                         type='button'
                         onClick={() => handleDelete(category)}
                       >
-                        حذف
+                        {t('delete')}
                       </button>
                     </div>
                   </td>

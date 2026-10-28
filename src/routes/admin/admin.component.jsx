@@ -14,41 +14,43 @@ import {
 } from '../../components/admin-icons/admin-icons.component.jsx';
 
 import { UserContext } from '../../contexts/user.context.jsx';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 import './admin.styles.scss';
 
-const ADMIN_LINKS = [
-  { to: '/admin', label: 'نظرة عامة', end: true, Icon: OverviewIcon },
-  { to: '/admin/categories', label: 'الأقسام', Icon: CategoriesIcon },
-  { to: '/admin/products', label: 'المنتجات', Icon: ProductsIcon },
-  { to: '/admin/orders', label: 'الطلبات', Icon: OrdersIcon },
-  { to: '/admin/users', label: 'المستخدمون', Icon: UsersIcon },
-  { to: '/admin/settings', label: 'إعدادات الموقع', Icon: SettingsIcon },
-];
-
 const Admin = () => {
   const { currentUser, isAdmin, isAuthReady } = useContext(UserContext);
+  const { language, t, dir } = useContext(LanguageContext);
 
   if (!isAuthReady) return <Spinner />;
 
   if (!currentUser) return <Navigate to='/auth' replace />;
 
   if (!isAdmin) {
-    return <StatusMessage message='ليس لديك صلاحية الوصول إلى لوحة التحكم' />;
+    return <StatusMessage message={t('noAdminAccess')} />;
   }
 
   const displayName = currentUser.displayName || currentUser.email || '';
   const initial = displayName.trim().charAt(0).toUpperCase();
 
+  const links = [
+    { to: '/admin', label: t('adminOverview'), end: true, Icon: OverviewIcon },
+    { to: '/admin/categories', label: t('adminCategories'), Icon: CategoriesIcon },
+    { to: '/admin/products', label: t('adminProducts'), Icon: ProductsIcon },
+    { to: '/admin/orders', label: t('adminOrders'), Icon: OrdersIcon },
+    { to: '/admin/users', label: t('adminUsers'), Icon: UsersIcon },
+    { to: '/admin/settings', label: t('adminSettings'), Icon: SettingsIcon },
+  ];
+
   return (
-    <div className='admin-container' dir='rtl'>
+    <div className='admin-container' dir={dir} lang={language}>
       <aside className='admin-sidebar'>
         <div className='admin-brand'>
           <span className='admin-brand-name'>CRWN</span>
-          <span className='admin-brand-sub'>لوحة التحكم</span>
+          <span className='admin-brand-sub'>{t('adminPanel')}</span>
         </div>
-        <nav className='admin-nav' aria-label='التنقل في لوحة التحكم'>
-          {ADMIN_LINKS.map(({ to, label, end, Icon }) => (
+        <nav className='admin-nav' aria-label={t('adminPanel')}>
+          {links.map(({ to, label, end, Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -71,12 +73,12 @@ const Admin = () => {
               <span className='admin-user-name' dir='auto'>
                 {displayName}
               </span>
-              <span className='admin-user-role'>مدير</span>
+              <span className='admin-user-role'>{t('adminRole')}</span>
             </div>
           </div>
           <Link className='admin-back-link' to='/'>
             <ArrowIcon size={18} />
-            <span>العودة إلى المتجر</span>
+            <span>{t('backToStore')}</span>
           </Link>
         </div>
       </aside>

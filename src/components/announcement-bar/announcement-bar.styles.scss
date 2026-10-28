@@ -1,10 +1,98 @@
 .announcement-bar {
-  width: 100%;
-  padding: 12px 20px;
-  margin-bottom: 15px;
-  background-color: black;
-  color: white;
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-bottom: 12px;
+  padding: 0;
+  overflow: hidden;
+  background-color: #111;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.announcement-measure {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.announcement-bar.is-static {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 11px 20px;
+}
+
+.announcement-static {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
   text-align: center;
-  font-size: 16px;
-  letter-spacing: 0.5px;
+  line-height: 1.4;
+}
+
+.announcement-track {
+  display: flex;
+  width: max-content;
+  animation: announcement-marquee 28s linear infinite;
+
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+.announcement-text {
+  display: inline-block;
+  padding: 11px 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  padding-inline-end: 2rem;
+}
+
+html[dir='rtl'] .announcement-bar.is-marquee .announcement-track {
+  animation-name: announcement-marquee-rtl;
+}
+
+@keyframes announcement-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes announcement-marquee-rtl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .announcement-bar.is-marquee .announcement-track {
+    animation: none;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .announcement-bar.is-marquee .announcement-text:last-child {
+    display: none;
+  }
+
+  .announcement-bar.is-marquee .announcement-text {
+    white-space: normal;
+    text-align: center;
+    padding-inline: 16px;
+  }
 }

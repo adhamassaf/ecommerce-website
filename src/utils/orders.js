@@ -43,9 +43,9 @@ export const formatMoney = (value) => {
   return `$${Number.isInteger(amount) ? amount : amount.toFixed(2)}`;
 };
 
-export const formatOrderDate = (date) =>
+export const formatOrderDate = (date, language = 'en') =>
   date
-    ? date.toLocaleString('en-GB', {
+    ? date.toLocaleString(language === 'ar' ? 'ar' : 'en-GB', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',

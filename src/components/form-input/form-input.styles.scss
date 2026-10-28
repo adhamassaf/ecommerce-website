@@ -16,7 +16,7 @@ $main-color: black;
     background-color: white;
     color: $sub-color;
     font-size: 18px;
-    padding: 10px 10px 10px 5px;
+    padding: 10px 5px;
     display: block;
     width: 100%;
     border: none;
@@ -33,7 +33,7 @@ $main-color: black;
     }
 
     &.has-toggle {
-      padding-right: 44px;
+      padding-inline-end: 44px;
     }
 
     &::-ms-reveal,
@@ -46,13 +46,19 @@ $main-color: black;
     letter-spacing: 0.3em;
   }
 
+  input[type='email'],
+  input[name='email'] {
+    direction: ltr;
+    text-align: start;
+  }
+
   .form-input-label {
     color: $sub-color;
     font-size: 16px;
     font-weight: normal;
     position: absolute;
     pointer-events: none;
-    left: 5px;
+    inset-inline-start: 5px;
     top: 10px;
     transition: 300ms ease all;
 
@@ -64,7 +70,7 @@ $main-color: black;
   .password-toggle {
     position: absolute;
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     width: 40px;
     height: 100%;
     display: flex;

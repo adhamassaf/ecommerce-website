@@ -5,11 +5,17 @@ import Button from '../../components/button/button.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
 
 import { UserContext } from '../../contexts/user.context.jsx';
+import { LanguageContext } from '../../contexts/language.context.jsx';
+import PhoneInput from '../../components/phone-input/phone-input.component.jsx';
 
 import {
   updateUserProfile,
   uploadProfilePhoto,
 } from '../../utils/firebase/firebase.utils.js';
+import {
+  isValidNationalNumber,
+  parsePhoneValue,
+} from '../../utils/phone-countries.js';
 
 import './profile.styles.scss';
 
@@ -18,6 +24,7 @@ const MAX_FILE_SIZE = 3 * 1024 * 1024;
 const Profile = () => {
   const { currentUser, userProfile, isAuthReady, refreshUserProfile } =
     useContext(UserContext);
+  const { language, t } = useContext(LanguageContext);
   const fileInputRef = useRef(null);
 
   const [displayName, setDisplayName] = useState('');
@@ -54,12 +61,12 @@ const Profile = () => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setMessage({ type: 'error', text: 'Please choose an image file.' });
+      setMessage({ type: 'error', text: t('chooseImageFile') });
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setMessage({ type: 'error', text: 'Image must be under 3MB.' });
+      setMessage({ type: 'error', text: t('imageTooLarge') });
       return;
     }
 
@@ -72,6 +79,15 @@ const Profile = () => {
     if (isSaving) return;
 
     setMessage({ type: '', text: '' });
+
+    if (phone) {
+      const parsedPhone = parsePhoneValue(phone);
+      if (!isValidNationalNumber(parsedPhone.iso, parsedPhone.national)) {
+        setMessage({ type: 'error', text: t('requiredPhone') });
+        return;
+      }
+    }
+
     setIsSaving(true);
 
     try {
@@ -89,12 +105,12 @@ const Profile = () => {
 
       await refreshUserProfile(currentUser.uid);
       setSelectedFile(null);
-      setMessage({ type: 'success', text: 'Profile updated successfully.' });
+      setMessage({ type: 'success', text: t('profileUpdated') });
     } catch (error) {
       const text =
         error?.message && error.message.startsWith('Please choose')
           ? error.message
-          : 'Could not save profile. Please try again.';
+          : t('couldNotSaveProfile');
       setMessage({ type: 'error', text });
     } finally {
       setIsSaving(false);
@@ -104,8 +120,8 @@ const Profile = () => {
   return (
     <div className='profile-container'>
       <div className='profile-header'>
-        <h1 className='profile-title'>My profile</h1>
-        <p className='profile-subtitle'>Update your name, phone and photo</p>
+        <h1 className='profile-title'>{t('myProfile')}</h1>
+        <p className='profile-subtitle'>{t('profileSubtitle')}</p>
       </div>
 
       <form className='profile-card' onSubmit={handleSave} noValidate>
@@ -130,17 +146,15 @@ const Profile = () => {
               buttonType='inverted'
               onClick={() => fileInputRef.current && fileInputRef.current.click()}
             >
-              Change photo
+              {t('changePhoto')}
             </Button>
-            <span className='profile-hint'>
-              JPG, PNG or WebP · compressed and saved for free
-            </span>
+            <span className='profile-hint'>{t('photoHint')}</span>
           </div>
         </div>
 
         <div className='profile-fields'>
           <label className='profile-field'>
-            <span className='profile-label'>Display name</span>
+            <span className='profile-label'>{t('displayName')}</span>
             <input
               className='profile-input'
               type='text'
@@ -153,7 +167,7 @@ const Profile = () => {
           </label>
 
           <label className='profile-field'>
-            <span className='profile-label'>Email</span>
+            <span className='profile-label'>{t('email')}</span>
             <input
               className='profile-input'
               type='email'
@@ -164,15 +178,11 @@ const Profile = () => {
           </label>
 
           <label className='profile-field'>
-            <span className='profile-label'>Phone</span>
-            <input
-              className='profile-input'
-              type='tel'
+            <span className='profile-label'>{t('phone')}</span>
+            <PhoneInput
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              maxLength={20}
-              autoComplete='tel'
-              placeholder='Optional'
+              language={language}
+              onChange={setPhone}
             />
           </label>
         </div>
@@ -188,7 +198,7 @@ const Profile = () => {
 
         <div className='profile-actions'>
           <Button type='submit' disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save changes'}
+            {isSaving ? t('saving') : t('saveChanges')}
           </Button>
         </div>
       </form>

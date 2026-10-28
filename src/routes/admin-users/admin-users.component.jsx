@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import Spinner from '../../components/spinner/spinner.component.jsx';
 
 import { getUserDocuments } from '../../utils/firebase/firebase.utils.js';
 import { getAdminErrorMessage } from '../../utils/admin-errors.js';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 const AdminUsers = () => {
+  const { t } = useContext(LanguageContext);
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -41,7 +43,7 @@ const AdminUsers = () => {
 
   return (
     <div>
-      <h1 className='admin-title'>المستخدمون</h1>
+      <h1 className='admin-title'>{t('usersTitle')}</h1>
 
       {errorMessage && (
         <div className='admin-alert error' role='alert'>

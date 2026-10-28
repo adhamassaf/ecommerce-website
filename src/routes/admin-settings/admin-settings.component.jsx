@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import AdminField from '../../components/admin-field/admin-field.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
@@ -8,11 +8,14 @@ import {
   saveSiteSettings,
 } from '../../utils/firebase/firebase.utils.js';
 import { getAdminErrorMessage } from '../../utils/admin-errors.js';
+import { getLocalized, normalizeLocaleValue } from '../../utils/i18n.js';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 const AdminSettings = () => {
+  const { language, t } = useContext(LanguageContext);
   const [settings, setSettings] = useState({
     announcementEnabled: false,
-    announcementText: '',
+    announcementText: { en: '', ar: '' },
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -27,7 +30,7 @@ const AdminSettings = () => {
 
         setSettings({
           announcementEnabled: Boolean(data.announcementEnabled),
-          announcementText: data.announcementText || '',
+          announcementText: normalizeLocaleValue(data.announcementText),
         });
       })
       .catch((err) => {
@@ -49,9 +52,11 @@ const AdminSettings = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const announcementText = settings.announcementText.trim();
+    const announcementText = normalizeLocaleValue(settings.announcementText);
+    const hasText =
+      announcementText.en.trim() || announcementText.ar.trim();
 
-    if (settings.announcementEnabled && !announcementText) {
+    if (settings.announcementEnabled && !hasText) {
       setFeedback({
         type: 'error',
         text: 'اكتب نص الإعلان أو أوقف عرضه.',
@@ -65,9 +70,18 @@ const AdminSettings = () => {
     try {
       await saveSiteSettings({
         announcementEnabled: settings.announcementEnabled,
-        announcementText,
+        announcementText: {
+          en: announcementText.en.trim(),
+          ar: announcementText.ar.trim() || announcementText.en.trim(),
+        },
       });
-      setSettings((previous) => ({ ...previous, announcementText }));
+      setSettings((previous) => ({
+        ...previous,
+        announcementText: {
+          en: announcementText.en.trim(),
+          ar: announcementText.ar.trim() || announcementText.en.trim(),
+        },
+      }));
       setFeedback({ type: 'success', text: 'تم حفظ الإعدادات.' });
     } catch (err) {
       setFeedback({ type: 'error', text: getAdminErrorMessage(err) });
@@ -78,7 +92,7 @@ const AdminSettings = () => {
 
   return (
     <div>
-      <h1 className='admin-title'>إعدادات الموقع</h1>
+      <h1 className='admin-title'>{t('siteSettings')}</h1>
 
       {feedback && (
         <div className={`admin-alert ${feedback.type}`} role='alert'>
@@ -87,7 +101,7 @@ const AdminSettings = () => {
       )}
 
       <form className='admin-panel admin-form' onSubmit={handleSubmit}>
-        <h2 className='admin-panel-title admin-form-wide'>شريط الإعلان</h2>
+        <h2 className='admin-panel-title admin-form-wide'>{t('announcementBar')}</h2>
         <label className='admin-checkbox admin-form-wide'>
           <input
             type='checkbox'
@@ -99,35 +113,38 @@ const AdminSettings = () => {
               }))
             }
           />
-          <span>عرض الشريط أعلى كل صفحات المتجر</span>
+          <span>{t('showAnnouncement')}</span>
         </label>
         <div className='admin-form-wide'>
           <AdminField
             as='textarea'
-            label='نص الإعلان'
-            dir='auto'
+            label={t('announcementTextEn')}
+            dir='ltr'
             maxLength={160}
-            value={settings.announcementText}
-            onChange={(event) =>
+            value={settings.announcementText?.en || ''}
+            localeValue={settings.announcementText}
+            translatable
+            onLocaleChange={(next) =>
               setSettings((previous) => ({
                 ...previous,
-                announcementText: event.target.value,
+                announcementText: next,
               }))
             }
-            hint='حتى 160 حرفاً.'
+            onChange={() => {}}
+            hint={t('announcementGlobeHint')}
           />
         </div>
-        {settings.announcementText.trim() && (
+        {(settings.announcementText?.en || settings.announcementText?.ar) && (
           <div className='admin-form-wide'>
-            <p className='admin-meta'>معاينة</p>
+            <p className='admin-meta'>{t('preview')}</p>
             <div className='announcement-bar' dir='auto'>
-              {settings.announcementText.trim()}
+              {getLocalized(settings.announcementText, language)}
             </div>
           </div>
         )}
         <div className='admin-form-actions'>
           <button className='admin-button' type='submit' disabled={isSaving}>
-            {isSaving ? 'جارٍ الحفظ...' : 'حفظ الإعدادات'}
+            {isSaving ? t('saving') : t('saveSettings')}
           </button>
         </div>
       </form>

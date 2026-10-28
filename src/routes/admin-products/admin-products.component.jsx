@@ -12,12 +12,20 @@ import {
 } from '../../utils/firebase/firebase.utils.js';
 import { getAdminErrorMessage } from '../../utils/admin-errors.js';
 import { isValidUrl } from '../../utils/is-valid-url.js';
+import { getLocalized, normalizeLocaleValue } from '../../utils/i18n.js';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
-const EMPTY_FORM = { name: '', price: '', imageUrl: '', categoryId: '' };
+const EMPTY_FORM = {
+  name: { en: '', ar: '' },
+  price: '',
+  imageUrl: '',
+  categoryId: '',
+};
 
 const AdminProducts = () => {
   const { categories, isLoading, error, refreshCategories } =
     useContext(CategoriesContext);
+  const { language, t } = useContext(LanguageContext);
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [editing, setEditing] = useState(null);
@@ -50,11 +58,14 @@ const AdminProducts = () => {
   const visibleProducts = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
 
-    return allProducts.filter(
-      (product) =>
+    return allProducts.filter((product) => {
+      const nameEn = getLocalized(product.name, 'en').toLowerCase();
+      const nameAr = getLocalized(product.name, 'ar').toLowerCase();
+      return (
         (categoryFilter === 'all' || product.categoryId === categoryFilter) &&
-        (!term || String(product.name || '').toLowerCase().includes(term))
-    );
+        (!term || nameEn.includes(term) || nameAr.includes(term))
+      );
+    });
   }, [allProducts, categoryFilter, searchTerm]);
 
   if (isLoading) return <Spinner />;
@@ -64,7 +75,7 @@ const AdminProducts = () => {
   if (categories.length === 0) {
     return (
       <div>
-        <h1 className='admin-title'>المنتجات</h1>
+        <h1 className='admin-title'>{t('adminProducts')}</h1>
         <div className='admin-empty'>
           لا توجد أقسام بعد. <Link to='/admin/categories'>أضف قسماً</Link> أولاً
           ثم أضف المنتجات إليه.
@@ -88,7 +99,7 @@ const AdminProducts = () => {
   const startEditing = (product) => {
     setEditing({ id: product.id, categoryId: product.categoryId });
     setForm({
-      name: product.name || '',
+      name: normalizeLocaleValue(product.name),
       price: String(product.price),
       imageUrl: product.imageUrl || '',
       categoryId: product.categoryId,
@@ -100,12 +111,13 @@ const AdminProducts = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const name = form.name.trim();
+    const nameLocale = normalizeLocaleValue(form.name);
+    const nameEn = nameLocale.en.trim();
     const imageUrl = form.imageUrl.trim();
     const price = Number(form.price);
 
-    if (!name) {
-      setFeedback({ type: 'error', text: 'اكتب اسم المنتج.' });
+    if (!nameEn) {
+      setFeedback({ type: 'error', text: 'اكتب اسم المنتج (بالإنجليزية).' });
       return;
     }
 
@@ -124,7 +136,7 @@ const AdminProducts = () => {
 
     const product = {
       id: editing ? editing.id : nextId,
-      name,
+      name: { en: nameEn, ar: nameLocale.ar.trim() || nameEn },
       price,
       imageUrl,
     };
@@ -152,7 +164,9 @@ const AdminProducts = () => {
   };
 
   const handleDelete = async (product) => {
-    const confirmed = window.confirm(`حذف المنتج "${product.name}"؟`);
+    const confirmed = window.confirm(
+      `حذف المنتج "${getLocalized(product.name, 'ar')}"؟`
+    );
 
     if (!confirmed) return;
 
@@ -170,7 +184,7 @@ const AdminProducts = () => {
 
   return (
     <div>
-      <h1 className='admin-title'>المنتجات</h1>
+      <h1 className='admin-title'>{t('adminProducts')}</h1>
 
       {feedback && (
         <div className={`admin-alert ${feedback.type}`} role='alert'>
@@ -190,20 +204,26 @@ const AdminProducts = () => {
         >
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
-              {category.title}
+              {getLocalized(category.title, 'ar')}
             </option>
           ))}
         </AdminField>
         <AdminField
-          label='اسم المنتج'
+          label={t('productNameEn')}
           type='text'
-          dir='auto'
-          value={form.name}
-          onChange={handleChange('name')}
+          dir='ltr'
+          value={form.name?.en || ''}
+          localeValue={form.name}
+          translatable
+          onLocaleChange={(next) =>
+            setForm((previous) => ({ ...previous, name: next }))
+          }
+          onChange={() => {}}
+          hint={t('pressGlobeHint')}
           required
         />
         <AdminField
-          label='السعر (بالدولار)'
+          label={t('productPrice')}
           type='number'
           min='0'
           step='0.01'
@@ -212,7 +232,7 @@ const AdminProducts = () => {
           required
         />
         <AdminField
-          label='رابط صورة المنتج'
+          label={t('productImageUrl')}
           type='url'
           dir='ltr'
           value={form.imageUrl}
@@ -228,7 +248,7 @@ const AdminProducts = () => {
         )}
         <div className='admin-form-actions'>
           <button className='admin-button' type='submit' disabled={isSaving}>
-            {isSaving ? 'جارٍ الحفظ...' : editing ? 'حفظ التعديلات' : 'إضافة المنتج'}
+            {isSaving ? t('saving') : editing ? t('saveChanges') : t('addProduct')}
           </button>
           {editing && (
             <button
@@ -291,10 +311,18 @@ const AdminProducts = () => {
                     <img
                       className='admin-thumb'
                       src={product.imageUrl}
-                      alt={product.name}
+                      alt={getLocalized(product.name, 'ar')}
                     />
                   </td>
-                  <td dir='auto'>{product.name}</td>
+                  <td dir='auto'>
+                    {getLocalized(product.name, 'en')}
+                    {getLocalized(product.name, 'ar') !==
+                      getLocalized(product.name, 'en') && (
+                      <div className='admin-hint'>
+                        {getLocalized(product.name, 'ar')}
+                      </div>
+                    )}
+                  </td>
                   <td>{product.categoryTitle}</td>
                   <td>${product.price}</td>
                   <td>

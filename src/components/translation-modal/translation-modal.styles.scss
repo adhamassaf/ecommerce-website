@@ -1,0 +1,96 @@
+.translation-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.translation-modal {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.translation-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+  }
+}
+
+.translation-modal-close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: #f3f3f3;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+
+  &:hover {
+    background: #e8e8e8;
+  }
+}
+
+.translation-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 12px;
+    font: inherit;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    resize: vertical;
+    background: #fafafa;
+
+    &:read-only {
+      color: #666;
+      background: #f5f5f5;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #111;
+      background: #fff;
+    }
+  }
+}
+
+.translation-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  .button-container {
+    min-width: 120px;
+    height: 44px;
+    border-radius: 10px;
+  }
+}

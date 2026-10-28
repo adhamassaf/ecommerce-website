@@ -10,20 +10,27 @@ import StatusMessage from '../../components/status-message/status-message.compon
 
 import { useProductFilters } from '../../hooks/use-product-filters.js';
 import { filterAndSortProducts } from '../../utils/product-filters.js';
+import { getLocalized } from '../../utils/i18n.js';
 
 import './categories-preview.styles.scss';
 
 const CategoriesPreview = () => {
-  const { categoriesMap, isLoading, error } = useContext(CategoriesContext);
+  const { categories, categoriesMap, isLoading, error } =
+    useContext(CategoriesContext);
   const { filters, setFilter, resetFilters, hasActiveFilters } =
     useProductFilters();
 
   const allProducts = useMemo(
     () =>
-      Object.entries(categoriesMap).flatMap(([category, items]) =>
-        items.map((item) => ({ ...item, category }))
+      categories.flatMap((category) =>
+        category.items.map((item) => ({
+          ...item,
+          category: category.id,
+          name: getLocalized(item.name, 'en'),
+          _name: item.name,
+        }))
       ),
-    [categoriesMap]
+    [categories]
   );
 
   if (isLoading) return <Spinner />;
@@ -36,11 +43,12 @@ const CategoriesPreview = () => {
 
   const renderContent = () => {
     if (!hasActiveFilters) {
-      return Object.keys(categoriesMap).map((title) => (
+      return categories.map((category) => (
         <CategoryPreview
-          key={title}
-          title={title}
-          products={categoriesMap[title]}
+          key={category.id}
+          title={category.title}
+          categoryId={category.id}
+          products={category.items}
         />
       ));
     }
@@ -52,7 +60,7 @@ const CategoriesPreview = () => {
         {results.map((product) => (
           <ProductCard
             key={`${product.category}-${product.id}`}
-            product={product}
+            product={{ ...product, name: product._name || product.name }}
             category={product.category}
             highlight={filters.query}
           />

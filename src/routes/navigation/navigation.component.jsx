@@ -8,6 +8,7 @@ import AnnouncementBar from '../../components/announcement-bar/announcement-bar.
 
 import { UserContext } from '../../contexts/user.context';
 import { CartContext } from '../../contexts/cart.context';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 import { ReactComponent as CrwnLogo } from '../../assets/crown.svg';
 
@@ -18,6 +19,7 @@ import './navigation.styles.scss';
 const Navigation = () => {
   const { currentUser, userProfile, isAdmin } = useContext(UserContext);
   const { isCartOpen } = useContext(CartContext);
+  const { language, setLanguage, t } = useContext(LanguageContext);
 
   const displayName =
     (userProfile && userProfile.displayName) ||
@@ -38,38 +40,53 @@ const Navigation = () => {
     <Fragment>
       <AnnouncementBar />
       <div className='navigation'>
-        <Link className='logo-container' to='/'>
-          <CrwnLogo className='logo' />
-        </Link>
-        <div className='nav-links-container'>
-          <Link className='nav-link' to='/shop'>
-            SHOP
+        <div className='nav-start'>
+          <Link className='logo-container' to='/'>
+            <CrwnLogo className='logo' />
           </Link>
 
-          {isAdmin && (
-            <Link className='nav-link' to='/admin'>
-              ADMIN
+          <nav className='nav-links' aria-label='Main'>
+            <Link className='nav-link' to='/shop'>
+              {t('shop')}
             </Link>
-          )}
+
+            {isAdmin && (
+              <Link className='nav-link' to='/admin'>
+                {t('admin')}
+              </Link>
+            )}
+
+            {currentUser && (
+              <Link className='nav-link' to='/orders'>
+                {t('orders')}
+              </Link>
+            )}
+
+            {currentUser ? (
+              <span className='nav-link' onClick={signOutUser}>
+                {t('signOut')}
+              </span>
+            ) : (
+              <Link className='nav-link' to='/auth'>
+                {t('signIn')}
+              </Link>
+            )}
+          </nav>
+        </div>
+
+        <div className='nav-end'>
+          <button
+            type='button'
+            className='nav-lang-btn'
+            onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+            title={t('language')}
+            aria-label={t('language')}
+          >
+            🌐 {language === 'ar' ? 'EN' : 'ع'}
+          </button>
 
           {currentUser && (
-            <Link className='nav-link' to='/orders'>
-              ORDERS
-            </Link>
-          )}
-
-          {currentUser ? (
-            <span className='nav-link' onClick={signOutUser}>
-              SIGN OUT
-            </span>
-          ) : (
-            <Link className='nav-link' to='/auth'>
-              SIGN IN
-            </Link>
-          )}
-
-          {currentUser && (
-            <Link className='nav-user' to='/profile' title='My profile'>
+            <Link className='nav-user' to='/profile' title={t('myProfile')}>
               <span className='nav-user-avatar'>
                 {photoURL ? (
                   <img src={photoURL} alt={shortName} />
@@ -81,9 +98,11 @@ const Navigation = () => {
             </Link>
           )}
 
-          <CartIcon />
+          <div className='nav-cart-wrap'>
+            <CartIcon />
+            {isCartOpen && <CartDropdown />}
+          </div>
         </div>
-        {isCartOpen && <CartDropdown />}
       </div>
       <Outlet />
       <Toast />

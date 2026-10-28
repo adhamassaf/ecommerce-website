@@ -38,6 +38,11 @@
     align-items: start;
   }
 
+  html[dir='rtl'] & .checkout-layout,
+  [dir='rtl'] & .checkout-layout {
+    /* keep visual: cart summary then form in reading order */
+  }
+
   .checkout-section-header {
     display: flex;
     align-items: baseline;

@@ -24,7 +24,12 @@ export const filterAndSortProducts = (
   const max = parsePrice(maxPrice);
 
   const filtered = products.filter((product) => {
-    const searchableText = `${product.name} ${product.category || ''}`.toLowerCase();
+    const nameValue = product.name;
+    const nameText =
+      nameValue && typeof nameValue === 'object'
+        ? `${nameValue.en || ''} ${nameValue.ar || ''}`
+        : String(nameValue || '');
+    const searchableText = `${nameText} ${product.category || ''}`.toLowerCase();
 
     if (normalizedQuery && !searchableText.includes(normalizedQuery)) {
       return false;
@@ -43,7 +48,17 @@ export const filterAndSortProducts = (
     case 'price-desc':
       return [...filtered].sort((a, b) => b.price - a.price);
     case 'name-asc':
-      return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+      return [...filtered].sort((a, b) => {
+        const nameA =
+          a.name && typeof a.name === 'object'
+            ? a.name.en || a.name.ar || ''
+            : String(a.name || '');
+        const nameB =
+          b.name && typeof b.name === 'object'
+            ? b.name.en || b.name.ar || ''
+            : String(b.name || '');
+        return nameA.localeCompare(nameB);
+      });
     default:
       return filtered;
   }

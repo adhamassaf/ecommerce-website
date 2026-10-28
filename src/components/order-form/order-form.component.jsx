@@ -10,23 +10,14 @@ import { CategoriesContext } from '../../contexts/categories.context.jsx';
 
 import { createOrder } from '../../utils/firebase/firebase.utils.js';
 import { formatMoney, getOrderErrorMessage } from '../../utils/orders.js';
+import {
+  isValidNationalNumber,
+  parsePhoneValue,
+} from '../../utils/phone-countries.js';
+import { LanguageContext } from '../../contexts/language.context.jsx';
+import PhoneInput from '../phone-input/phone-input.component.jsx';
 
 import './order-form.styles.scss';
-
-const PHONE_PATTERN = /^\+?[\d\s\-()]{7,20}$/;
-
-const PAYMENT_OPTIONS = [
-  {
-    value: 'cod',
-    title: 'Cash on delivery',
-    description: 'Pay when your order arrives',
-  },
-  {
-    value: 'demo-card',
-    title: 'Card (demo)',
-    description: 'Simulated payment, no card details needed',
-  },
-];
 
 const OrderForm = () => {
   const { currentUser, isAuthReady } = useContext(UserContext);
@@ -36,7 +27,14 @@ const OrderForm = () => {
     isLoading: isCatalogLoading,
     error: catalogError,
   } = useContext(CategoriesContext);
+  const { language, t } = useContext(LanguageContext);
   const navigate = useNavigate();
+
+  const paymentOptions = [
+    { value: 'cod', title: t('codTitle'), description: t('codDesc') },
+    { value: 'demo-card', title: t('demoCardTitle'), description: t('demoCardDesc') },
+  ];
+
 
   const [fields, setFields] = useState({
     fullName: currentUser && currentUser.displayName ? currentUser.displayName : '',
@@ -55,12 +53,12 @@ const OrderForm = () => {
     return (
       <div className='order-form-container'>
         <div className='order-signin-prompt'>
-          <span>Please sign in to place your order.</span>
+          <span>{t('signInToOrder')}</span>
           <Button
             type='button'
             onClick={() => navigate('/auth', { state: { from: '/checkout' } })}
           >
-            Sign in
+            {t('signIn')}
           </Button>
         </div>
       </div>
@@ -76,8 +74,9 @@ const OrderForm = () => {
   const validate = (shipping) => {
     if (!shipping.fullName) return 'Please enter your full name.';
 
-    if (!PHONE_PATTERN.test(shipping.phone)) {
-      return 'Please enter a valid phone number.';
+    const parsedPhone = parsePhoneValue(shipping.phone);
+    if (!isValidNationalNumber(parsedPhone.iso, parsedPhone.national)) {
+      return t('requiredPhone');
     }
 
     if (!shipping.address) return 'Please enter your address.';
@@ -174,14 +173,13 @@ const OrderForm = () => {
     <div className='order-form-container'>
       <form className='order-form' onSubmit={handleSubmit} noValidate>
         <div className='order-demo-notice' role='note'>
-          Demo store: no real payment is taken and nothing is actually shipped.
-          Please do not enter real card details anywhere.
+          {t('demoNotice')}
         </div>
 
-        <h2 className='order-form-title'>Shipping details</h2>
+        <h2 className='order-form-title'>{t('shippingDetails')}</h2>
         <div className='order-fields'>
           <label className='order-field'>
-            <span className='order-field-label'>Full name</span>
+            <span className='order-field-label'>{t('fullName')}</span>
             <input
               className='order-field-control'
               name='fullName'
@@ -192,19 +190,18 @@ const OrderForm = () => {
             />
           </label>
           <label className='order-field'>
-            <span className='order-field-label'>Phone</span>
-            <input
-              className='order-field-control'
+            <span className='order-field-label'>{t('phone')}</span>
+            <PhoneInput
               name='phone'
-              type='tel'
               value={fields.phone}
-              onChange={handleChange}
-              maxLength={20}
-              autoComplete='tel'
+              language={language}
+              onChange={(nextPhone) =>
+                setFields((current) => ({ ...current, phone: nextPhone }))
+              }
             />
           </label>
           <label className='order-field wide'>
-            <span className='order-field-label'>Address</span>
+            <span className='order-field-label'>{t('address')}</span>
             <input
               className='order-field-control'
               name='address'
@@ -215,7 +212,7 @@ const OrderForm = () => {
             />
           </label>
           <label className='order-field'>
-            <span className='order-field-label'>City</span>
+            <span className='order-field-label'>{t('city')}</span>
             <input
               className='order-field-control'
               name='city'
@@ -226,7 +223,7 @@ const OrderForm = () => {
             />
           </label>
           <label className='order-field wide'>
-            <span className='order-field-label'>Notes (optional)</span>
+            <span className='order-field-label'>{t('notesOptional')}</span>
             <textarea
               className='order-field-control'
               name='notes'
@@ -238,9 +235,9 @@ const OrderForm = () => {
           </label>
         </div>
 
-        <h2 className='order-form-title'>Payment method</h2>
+        <h2 className='order-form-title'>{t('paymentMethod')}</h2>
         <div className='payment-options' role='radiogroup'>
-          {PAYMENT_OPTIONS.map((option) => (
+          {paymentOptions.map((option) => (
             <label
               key={option.value}
               className={`payment-option${
@@ -270,10 +267,10 @@ const OrderForm = () => {
 
         <div className='order-submit'>
           <span className='order-submit-total'>
-            Total: {formatMoney(cartTotal)}
+            {t('total')}: {formatMoney(cartTotal)}
           </span>
           <Button type='submit' disabled={isSubmitting}>
-            {isSubmitting ? 'Placing order...' : 'Place order'}
+            {isSubmitting ? t('placingOrder') : t('placeOrder')}
           </Button>
         </div>
       </form>

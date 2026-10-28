@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 import FormInput from '../form-input/form-input.component.jsx';
 import Button from '../button/button.component.jsx';
+
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 import {
   signInAuthUserWithEmailAndPassword,
@@ -20,26 +22,27 @@ const ignoredErrorCodes = [
   'auth/cancelled-popup-request',
 ];
 
-const getErrorMessage = (error) => {
-  switch (error.code) {
-    case 'auth/wrong-password':
-    case 'auth/invalid-credential':
-      return 'Incorrect email or password';
-    case 'auth/user-not-found':
-      return 'No account found with this email';
-    case 'auth/too-many-requests':
-      return 'Too many attempts, try again later';
-    case 'auth/network-request-failed':
-      return 'Network error, check your connection';
-    default:
-      return 'Sign in failed, please try again';
-  }
-};
-
 const SignInForm = () => {
+  const { t } = useContext(LanguageContext);
   const [formFields, setFormFields] = useState(defaultFormFields);
   const [errorMessage, setErrorMessage] = useState('');
   const { email, password } = formFields;
+
+  const getErrorMessage = (error) => {
+    switch (error.code) {
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        return t('authWrongPassword');
+      case 'auth/user-not-found':
+        return t('authUserNotFound');
+      case 'auth/too-many-requests':
+        return t('authTooMany');
+      case 'auth/network-request-failed':
+        return t('authNetwork');
+      default:
+        return t('authSignInFailed');
+    }
+  };
 
   const resetFormFields = () => {
     setFormFields(defaultFormFields);
@@ -70,37 +73,42 @@ const SignInForm = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
     setFormFields({ ...formFields, [name]: value });
   };
 
   return (
     <div className='sign-in-container'>
-      <h2>Already have an account?</h2>
-      <span>Sign in with your email and password</span>
+      <h2>{t('alreadyHaveAccount')}</h2>
+      <span>{t('signInSubtitle')}</span>
       <form onSubmit={handleSubmit}>
         <FormInput
-          label='Email'
+          label={t('email')}
           type='email'
           required
           onChange={handleChange}
           name='email'
           value={email}
+          autoComplete='email'
         />
 
         <FormInput
-          label='Password'
+          label={t('password')}
           type='password'
           required
           onChange={handleChange}
           name='password'
           value={password}
+          autoComplete='current-password'
         />
-        {errorMessage && <span className='error-message'>{errorMessage}</span>}
+        {errorMessage && (
+          <span className='error-message' role='alert'>
+            {errorMessage}
+          </span>
+        )}
         <div className='buttons-container'>
-          <Button type='submit'>Sign In</Button>
+          <Button type='submit'>{t('signInBtn')}</Button>
           <Button buttonType='google' type='button' onClick={signInWithGoogle}>
-            Sign With Google
+            {t('signWithGoogle')}
           </Button>
         </div>
       </form>
