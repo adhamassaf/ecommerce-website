@@ -24,6 +24,7 @@ const ProductDetails = () => {
   useEffect(() => {
     setQuantity(1);
     setIsAdded(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [category, productId]);
 
   useEffect(() => {
