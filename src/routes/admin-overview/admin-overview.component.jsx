@@ -3,6 +3,16 @@ import { Link } from 'react-router-dom';
 
 import Spinner from '../../components/spinner/spinner.component.jsx';
 import StatusMessage from '../../components/status-message/status-message.component.jsx';
+import {
+  CategoriesIcon,
+  ProductsIcon,
+  UsersIcon,
+  OrdersIcon,
+  PriceIcon,
+  PlusIcon,
+  SettingsIcon,
+  ArrowIcon,
+} from '../../components/admin-icons/admin-icons.component.jsx';
 
 import { CategoriesContext } from '../../contexts/categories.context.jsx';
 import {
@@ -55,50 +65,90 @@ const AdminOverview = () => {
 
   if (error) return <StatusMessage message={error} />;
 
+  const statCards = [
+    {
+      key: 'categories',
+      tone: 'gold',
+      Icon: CategoriesIcon,
+      value: categories.length,
+      label: 'قسم',
+    },
+    {
+      key: 'products',
+      tone: 'blue',
+      Icon: ProductsIcon,
+      value: stats.total,
+      label: 'منتج',
+    },
+    {
+      key: 'users',
+      tone: 'green',
+      Icon: UsersIcon,
+      value: usersCount === null ? '-' : usersCount,
+      label: 'مستخدم مسجّل',
+    },
+    {
+      key: 'orders',
+      tone: 'violet',
+      Icon: OrdersIcon,
+      value: ordersCount === null ? '-' : ordersCount,
+      label: 'طلب',
+    },
+    {
+      key: 'price',
+      tone: 'rose',
+      Icon: PriceIcon,
+      value: `$${stats.average.toFixed(2)}`,
+      label: 'متوسط سعر المنتج',
+    },
+  ];
+
+  const maxItems = Math.max(
+    1,
+    ...categories.map((category) => category.items.length)
+  );
+
   return (
     <div>
       <h1 className='admin-title'>نظرة عامة</h1>
 
       <div className='admin-stats'>
-        <div className='admin-stat'>
-          <span className='admin-stat-value'>{categories.length}</span>
-          <span className='admin-stat-label'>قسم</span>
-        </div>
-        <div className='admin-stat'>
-          <span className='admin-stat-value'>{stats.total}</span>
-          <span className='admin-stat-label'>منتج</span>
-        </div>
-        <div className='admin-stat'>
-          <span className='admin-stat-value'>
-            {usersCount === null ? '-' : usersCount}
-          </span>
-          <span className='admin-stat-label'>مستخدم مسجّل</span>
-        </div>
-        <div className='admin-stat'>
-          <span className='admin-stat-value'>
-            {ordersCount === null ? '-' : ordersCount}
-          </span>
-          <span className='admin-stat-label'>طلب</span>
-        </div>
-        <div className='admin-stat'>
-          <span className='admin-stat-value'>${stats.average.toFixed(2)}</span>
-          <span className='admin-stat-label'>متوسط سعر المنتج</span>
-        </div>
+        {statCards.map(({ key, tone, Icon, value, label }, index) => (
+          <div
+            className={`admin-stat ${tone}`}
+            key={key}
+            style={{ '--i': index }}
+          >
+            <span className='admin-stat-icon'>
+              <Icon size={24} />
+            </span>
+            <div className='admin-stat-body'>
+              <span className='admin-stat-value' dir='ltr'>
+                {value}
+              </span>
+              <span className='admin-stat-label'>{label}</span>
+            </div>
+          </div>
+        ))}
       </div>
 
       <section className='admin-panel'>
         <h2 className='admin-panel-title'>إجراءات سريعة</h2>
         <div className='admin-quick-links'>
           <Link className='admin-button' to='/admin/products'>
+            <PlusIcon size={18} />
             إضافة منتج
           </Link>
           <Link className='admin-button secondary' to='/admin/orders'>
+            <OrdersIcon size={18} />
             عرض الطلبات
           </Link>
           <Link className='admin-button secondary' to='/admin/categories'>
+            <PlusIcon size={18} />
             إضافة قسم
           </Link>
           <Link className='admin-button secondary' to='/admin/settings'>
+            <SettingsIcon size={18} />
             تعديل شريط الإعلان
           </Link>
         </div>
@@ -121,9 +171,27 @@ const AdminOverview = () => {
               {categories.map((category) => (
                 <tr key={category.id}>
                   <td>{category.title}</td>
-                  <td>{category.items.length}</td>
                   <td>
-                    <Link to={`/shop/${category.id}`}>فتح القسم</Link>
+                    <div className='admin-bar-cell'>
+                      <span>{category.items.length}</span>
+                      <div className='admin-bar'>
+                        <span
+                          className='admin-bar-fill'
+                          style={{
+                            width: `${(category.items.length / maxItems) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <Link
+                      className='admin-text-link'
+                      to={`/shop/${category.id}`}
+                    >
+                      فتح القسم
+                      <ArrowIcon size={16} />
+                    </Link>
                   </td>
                 </tr>
               ))}

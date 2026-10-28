@@ -4,25 +4,44 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-    min-width: 150px;
+    min-width: 170px;
+
+    .admin-field-control {
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
   }
 
-  .admin-order-details-row td {
-    background-color: #fafafa;
+  .admin-table tbody tr.admin-order-details-row {
+    animation: none;
+
+    &:hover {
+      background-color: transparent;
+    }
+
+    td {
+      padding: 22px;
+      background-color: #faf7f0;
+    }
   }
 
   .admin-order-details {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 24px;
+    animation: admin-rise 0.35s var(--admin-ease) both;
 
     h3 {
       margin: 0 0 12px;
-      font-size: 18px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--admin-line);
+      font-size: 17px;
     }
 
     p {
       margin: 0 0 6px;
+      text-align: right;
     }
   }
 
@@ -31,6 +50,17 @@
     grid-template-columns: 56px 1fr auto;
     align-items: center;
     gap: 12px;
+    padding: 8px;
     margin-bottom: 10px;
+    border: 1px solid var(--admin-line);
+    border-radius: 14px;
+    background-color: #ffffff;
+    transition: box-shadow 0.2s var(--admin-ease),
+      transform 0.2s var(--admin-ease);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(23, 19, 15, 0.1);
+    }
   }
 }

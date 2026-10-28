@@ -1,5 +1,7 @@
 .order-status-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 4px 12px;
   border-radius: 999px;
   font-size: 14px;
@@ -7,6 +9,15 @@
   white-space: nowrap;
   color: #5c4400;
   background-color: #fff3cd;
+  transition: transform 0.2s ease;
+
+  &::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: currentColor;
+  }
 
   &.processing {
     color: #0b4a8a;
