@@ -415,9 +415,10 @@
   .admin-translate-btn {
     width: 32px;
     height: 32px;
-    border: 1px solid #d9d2c3;
+    border: 1px solid var(--admin-line);
     border-radius: 8px;
-    background: #fff;
+    background: var(--admin-surface);
+    color: var(--admin-ink);
     cursor: pointer;
     font-size: 16px;
     line-height: 1;
@@ -428,7 +429,7 @@
 
     &:hover {
       border-color: var(--admin-gold);
-      background: #fffaf0;
+      background: var(--admin-gold-soft);
     }
 
     &.has-translation {
@@ -440,13 +441,18 @@
   .admin-field-control {
     width: 100%;
     padding: 11px 14px;
-    border: 1px solid #d9d2c3;
+    border: 1px solid var(--admin-line);
     border-radius: 10px;
-    background-color: #ffffff;
+    background-color: var(--admin-surface);
     color: var(--admin-ink);
     font: inherit;
     transition: border-color 0.2s var(--admin-ease),
       box-shadow 0.2s var(--admin-ease), background-color 0.2s var(--admin-ease);
+
+    &::placeholder {
+      color: var(--admin-muted);
+      opacity: 0.85;
+    }
 
     &:hover:not(:disabled):not([readonly]) {
       border-color: var(--admin-gold);
@@ -460,7 +466,7 @@
     }
 
     &[readonly] {
-      background-color: #f3efe6;
+      background-color: var(--admin-bg);
       color: var(--admin-muted);
     }
 
