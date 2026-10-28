@@ -670,12 +670,13 @@
   .admin-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: auto;
 
     th,
     td {
       padding: 14px 16px;
       border-bottom: 1px solid var(--admin-line);
-      text-align: right;
+      text-align: start;
       vertical-align: middle;
     }
 
@@ -685,6 +686,14 @@
       font-size: 14px;
       font-weight: 700;
       white-space: nowrap;
+    }
+
+    th:last-child,
+    td:last-child {
+      width: 1%;
+      white-space: nowrap;
+      text-align: start;
+      padding-inline: 16px;
     }
 
     tbody tr {
@@ -725,6 +734,7 @@
     display: flex;
     gap: 6px;
     white-space: nowrap;
+    justify-content: flex-start;
   }
 
   .admin-alert {

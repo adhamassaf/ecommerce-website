@@ -81,6 +81,11 @@ const AdminOrders = () => {
     setExpandedId((current) => (current === orderId ? '' : orderId));
   };
 
+  const orderCountText =
+    visibleOrders.length === 1
+      ? `${visibleOrders.length} ${t('orderCountLabel')}`
+      : `${visibleOrders.length} ${t('orderCountLabelPlural')}`;
+
   if (isLoading) return <Spinner />;
 
   return (
@@ -94,45 +99,46 @@ const AdminOrders = () => {
       )}
 
       {!errorMessage && orders.length === 0 && (
-        <div className='admin-empty'>لا توجد طلبات بعد.</div>
+        <div className='admin-empty'>{t('noOrdersYetAdmin')}</div>
       )}
 
       {orders.length > 0 && (
         <>
           <div className='admin-toolbar'>
             <label className='admin-field'>
-              <span className='admin-field-label'>تصفية حسب الحالة</span>
+              <span className='admin-field-label'>{t('filterByStatus')}</span>
               <select
                 className='admin-field-control'
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
               >
-                <option value='all'>كل الطلبات</option>
+                <option value='all'>{t('allOrders')}</option>
                 {ORDER_STATUSES.map((status) => (
                   <option key={status} value={status}>
-                    {ORDER_STATUS_LABELS[language]?.[status] || ORDER_STATUS_LABELS.en[status]}
+                    {ORDER_STATUS_LABELS[language]?.[status] ||
+                      ORDER_STATUS_LABELS.en[status]}
                   </option>
                 ))}
               </select>
             </label>
           </div>
 
-          <p className='admin-meta'>{visibleOrders.length} طلب</p>
+          <p className='admin-meta'>{orderCountText}</p>
 
           {visibleOrders.length === 0 ? (
-            <div className='admin-empty'>لا توجد طلبات بهذه الحالة.</div>
+            <div className='admin-empty'>{t('noOrdersForStatus')}</div>
           ) : (
             <div className='admin-table-wrapper'>
               <table className='admin-table'>
                 <thead>
                   <tr>
-                    <th>رقم الطلب</th>
-                    <th>العميل</th>
-                    <th>التاريخ</th>
-                    <th>المجموع</th>
-                    <th>الدفع</th>
-                    <th>الحالة</th>
-                    <th>تفاصيل</th>
+                    <th>{t('orderNumber')}</th>
+                    <th>{t('customer')}</th>
+                    <th>{t('date')}</th>
+                    <th>{t('total')}</th>
+                    <th>{t('payment')}</th>
+                    <th>{t('status')}</th>
+                    <th>{t('details')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -143,18 +149,26 @@ const AdminOrders = () => {
                         <td dir='auto'>
                           {order.shipping.fullName || order.userName || '-'}
                         </td>
-                        <td dir='ltr'>{formatOrderDate(order.createdAt)}</td>
+                        <td dir='ltr'>
+                          {formatOrderDate(order.createdAt, language)}
+                        </td>
                         <td dir='ltr'>{formatMoney(order.total)}</td>
-                        <td>{PAYMENT_METHOD_LABELS.ar[order.paymentMethod]}</td>
+                        <td>
+                          {PAYMENT_METHOD_LABELS[language]?.[
+                            order.paymentMethod
+                          ] ||
+                            PAYMENT_METHOD_LABELS.en[order.paymentMethod] ||
+                            order.paymentMethod}
+                        </td>
                         <td>
                           <div className='admin-order-status'>
                             <OrderStatusBadge
                               status={order.status}
-                              language='ar'
+                              language={language}
                             />
                             <select
                               className='admin-field-control'
-                              aria-label='تغيير حالة الطلب'
+                              aria-label={t('changeOrderStatus')}
                               value={order.status}
                               disabled={updatingId === order.id}
                               onChange={(event) =>
@@ -163,7 +177,8 @@ const AdminOrders = () => {
                             >
                               {ORDER_STATUSES.map((status) => (
                                 <option key={status} value={status}>
-                                  {ORDER_STATUS_LABELS[language]?.[status] || ORDER_STATUS_LABELS.en[status]}
+                                  {ORDER_STATUS_LABELS[language]?.[status] ||
+                                    ORDER_STATUS_LABELS.en[status]}
                                 </option>
                               ))}
                             </select>
@@ -176,7 +191,7 @@ const AdminOrders = () => {
                             onClick={() => toggleExpanded(order.id)}
                             aria-expanded={expandedId === order.id}
                           >
-                            {expandedId === order.id ? 'إخفاء' : 'عرض'}
+                            {expandedId === order.id ? t('hide') : t('view')}
                           </button>
                         </td>
                       </tr>
@@ -185,7 +200,7 @@ const AdminOrders = () => {
                           <td colSpan={7}>
                             <div className='admin-order-details'>
                               <div>
-                                <h3>المنتجات</h3>
+                                <h3>{t('productsLabel')}</h3>
                                 {order.items.map((item) => (
                                   <div
                                     className='admin-order-item'
@@ -198,25 +213,28 @@ const AdminOrders = () => {
                                     />
                                     <span dir='auto'>{item.name}</span>
                                     <span dir='ltr'>
-                                      {item.quantity} x {formatMoney(item.price)}
+                                      {item.quantity} x{' '}
+                                      {formatMoney(item.price)}
                                     </span>
                                   </div>
                                 ))}
                               </div>
                               <div>
-                                <h3>بيانات الشحن</h3>
+                                <h3>{t('shippingInfo')}</h3>
                                 <p dir='auto'>{order.shipping.fullName}</p>
                                 <p dir='ltr'>{order.shipping.phone}</p>
                                 <p dir='auto'>
-                                  {order.shipping.address}،{' '}
-                                  {order.shipping.city}
+                                  {order.shipping.address}
+                                  {order.shipping.city
+                                    ? `, ${order.shipping.city}`
+                                    : ''}
                                 </p>
                                 {order.userEmail && (
                                   <p dir='ltr'>{order.userEmail}</p>
                                 )}
                                 {order.shipping.notes && (
                                   <p dir='auto'>
-                                    ملاحظات: {order.shipping.notes}
+                                    {t('notesLabel')}: {order.shipping.notes}
                                   </p>
                                 )}
                               </div>

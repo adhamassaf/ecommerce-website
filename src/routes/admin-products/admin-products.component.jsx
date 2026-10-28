@@ -77,8 +77,8 @@ const AdminProducts = () => {
       <div>
         <h1 className='admin-title'>{t('adminProducts')}</h1>
         <div className='admin-empty'>
-          لا توجد أقسام بعد. <Link to='/admin/categories'>أضف قسماً</Link> أولاً
-          ثم أضف المنتجات إليه.
+          {t('noCategoriesYet')}{' '}
+          <Link to='/admin/categories'>{t('addCategoryFirst')}</Link>
         </div>
       </div>
     );
@@ -117,19 +117,19 @@ const AdminProducts = () => {
     const price = Number(form.price);
 
     if (!nameEn) {
-      setFeedback({ type: 'error', text: 'اكتب اسم المنتج (بالإنجليزية).' });
+      setFeedback({ type: 'error', text: t('enterProductNameEn') });
       return;
     }
 
     if (form.price.trim() === '' || !Number.isFinite(price) || price < 0) {
-      setFeedback({ type: 'error', text: 'اكتب سعراً صحيحاً.' });
+      setFeedback({ type: 'error', text: t('enterValidPrice') });
       return;
     }
 
     if (!isValidUrl(imageUrl)) {
       setFeedback({
         type: 'error',
-        text: 'رابط الصورة مطلوب ويجب أن يبدأ بـ http أو https.',
+        text: t('imageUrlRequired'),
       });
       return;
     }
@@ -153,7 +153,7 @@ const AdminProducts = () => {
       await refreshCategories();
       setFeedback({
         type: 'success',
-        text: editing ? 'تم تحديث المنتج.' : 'تمت إضافة المنتج.',
+        text: editing ? t('productUpdated') : t('productAdded'),
       });
       resetForm();
     } catch (err) {
@@ -164,8 +164,9 @@ const AdminProducts = () => {
   };
 
   const handleDelete = async (product) => {
+    const productName = getLocalized(product.name, language);
     const confirmed = window.confirm(
-      `حذف المنتج "${getLocalized(product.name, language)}"؟`
+      t('deleteProductConfirm').replace('{name}', productName)
     );
 
     if (!confirmed) return;
@@ -176,11 +177,15 @@ const AdminProducts = () => {
       await removeProductFromCategory(product.categoryId, product.id);
       await refreshCategories();
       if (editing && editing.id === product.id) resetForm();
-      setFeedback({ type: 'success', text: 'تم حذف المنتج.' });
+      setFeedback({ type: 'success', text: t('productDeleted') });
     } catch (err) {
       setFeedback({ type: 'error', text: getAdminErrorMessage(err) });
     }
   };
+
+  const productsMeta = t('ofTotalProducts')
+    .replace('{visible}', String(visibleProducts.length))
+    .replace('{total}', String(allProducts.length));
 
   return (
     <div>
@@ -194,11 +199,11 @@ const AdminProducts = () => {
 
       <form className='admin-panel admin-form' onSubmit={handleSubmit}>
         <h2 className='admin-panel-title admin-form-wide'>
-          {editing ? 'تعديل المنتج' : 'إضافة منتج جديد'}
+          {editing ? t('editProduct') : t('addNewProduct')}
         </h2>
         <AdminField
           as='select'
-          label='القسم'
+          label={t('category')}
           value={selectedCategoryId}
           onChange={handleChange('categoryId')}
         >
@@ -243,12 +248,16 @@ const AdminProducts = () => {
           <img
             className='admin-preview'
             src={form.imageUrl.trim()}
-            alt='معاينة الصورة'
+            alt={t('imagePreviewAlt')}
           />
         )}
         <div className='admin-form-actions'>
           <button className='admin-button' type='submit' disabled={isSaving}>
-            {isSaving ? t('saving') : editing ? t('saveChanges') : t('addProduct')}
+            {isSaving
+              ? t('saving')
+              : editing
+                ? t('saveChanges')
+                : t('addProduct')}
           </button>
           {editing && (
             <button
@@ -257,7 +266,7 @@ const AdminProducts = () => {
               onClick={resetForm}
               disabled={isSaving}
             >
-              إلغاء التعديل
+              {t('cancelEdit')}
             </button>
           )}
         </div>
@@ -265,7 +274,7 @@ const AdminProducts = () => {
 
       <div className='admin-toolbar'>
         <AdminField
-          label='بحث بالاسم'
+          label={t('searchByName')}
           type='search'
           dir='auto'
           value={searchTerm}
@@ -273,11 +282,11 @@ const AdminProducts = () => {
         />
         <AdminField
           as='select'
-          label='تصفية حسب القسم'
+          label={t('filterByCategory')}
           value={categoryFilter}
           onChange={(event) => setCategoryFilter(event.target.value)}
         >
-          <option value='all'>كل الأقسام</option>
+          <option value='all'>{t('allCategories')}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {getLocalized(category.title, language)}
@@ -286,22 +295,20 @@ const AdminProducts = () => {
         </AdminField>
       </div>
 
-      <p className='admin-meta'>
-        {visibleProducts.length} من أصل {allProducts.length} منتج
-      </p>
+      <p className='admin-meta'>{productsMeta}</p>
 
       {visibleProducts.length === 0 ? (
-        <div className='admin-empty'>لا توجد منتجات مطابقة.</div>
+        <div className='admin-empty'>{t('noMatchingProducts')}</div>
       ) : (
         <div className='admin-table-wrapper'>
           <table className='admin-table'>
             <thead>
               <tr>
-                <th>الصورة</th>
-                <th>الاسم</th>
-                <th>القسم</th>
-                <th>السعر</th>
-                <th>إجراءات</th>
+                <th>{t('image')}</th>
+                <th>{t('productName')}</th>
+                <th>{t('category')}</th>
+                <th>{t('amount')}</th>
+                <th>{t('actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -319,7 +326,10 @@ const AdminProducts = () => {
                     {getLocalized(product.name, language === 'ar' ? 'en' : 'ar') !==
                       getLocalized(product.name, language) && (
                       <div className='admin-hint'>
-                        {getLocalized(product.name, language === 'ar' ? 'en' : 'ar')}
+                        {getLocalized(
+                          product.name,
+                          language === 'ar' ? 'en' : 'ar'
+                        )}
                       </div>
                     )}
                   </td>
@@ -332,14 +342,14 @@ const AdminProducts = () => {
                         type='button'
                         onClick={() => startEditing(product)}
                       >
-                        تعديل
+                        {t('edit')}
                       </button>
                       <button
                         className='admin-link-button danger'
                         type='button'
                         onClick={() => handleDelete(product)}
                       >
-                        حذف
+                        {t('delete')}
                       </button>
                     </div>
                   </td>
