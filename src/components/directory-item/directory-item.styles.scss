@@ -8,6 +8,7 @@
   border: 1px solid var(--brand);
   margin: 0 7.5px 15px;
   overflow: hidden;
+  position: relative;
 
   &:hover {
     cursor: pointer;
@@ -18,7 +19,7 @@
     }
 
     & .body {
-      opacity: 0.9;
+      opacity: 0.95;
     }
   }
 
@@ -50,19 +51,21 @@
     justify-content: center;
     border: 1px solid var(--brand);
     background-color: var(--surface);
-    opacity: 0.7;
+    opacity: 0.88;
     position: absolute;
 
     h2 {
       font-weight: bold;
       margin: 0 6px 0;
       font-size: 22px;
-      color: #4a4a4a;
+      color: var(--text);
     }
 
     p {
       font-weight: lighter;
       font-size: 16px;
+      color: var(--text-muted);
+      margin: 0;
     }
   }
 }

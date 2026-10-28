@@ -515,7 +515,7 @@
     border: 1px solid var(--admin-ink);
     border-radius: 12px;
     background-color: var(--admin-ink);
-    color: #ffffff;
+    color: var(--admin-bg);
     font: inherit;
     font-weight: 600;
     text-decoration: none;
@@ -528,6 +528,7 @@
       transform: translateY(-2px);
       border-color: var(--admin-gold-deep);
       background-color: var(--admin-gold-deep);
+      color: var(--admin-bg);
       box-shadow: 0 10px 20px rgba(138, 106, 31, 0.32);
     }
 
@@ -548,14 +549,14 @@
 
     &.secondary {
       border-color: var(--admin-line);
-      background-color: #ffffff;
+      background-color: var(--admin-surface);
       color: var(--admin-ink);
 
       &:hover:not(:disabled) {
         border-color: var(--admin-gold);
         background-color: var(--admin-gold-soft);
         color: var(--admin-ink);
-        box-shadow: 0 8px 18px rgba(23, 19, 15, 0.1);
+        box-shadow: 0 8px 18px rgba(23, 19, 15, 0.18);
       }
     }
   }
@@ -681,8 +682,8 @@
     }
 
     th {
-      background-color: #faf7f0;
-      color: var(--admin-ink-soft);
+      background-color: var(--admin-gold-soft);
+      color: var(--admin-ink);
       font-size: 14px;
       font-weight: 700;
       white-space: nowrap;
@@ -701,7 +702,7 @@
       animation: admin-fade 0.4s var(--admin-ease) both;
 
       &:hover {
-        background-color: #fcf9f2;
+        background-color: var(--admin-gold-soft);
       }
 
       &:last-child td {
@@ -807,7 +808,7 @@
     height: 8px;
     overflow: hidden;
     border-radius: 999px;
-    background-color: #efe9db;
+    background-color: var(--admin-line);
   }
 
   .admin-bar-fill {
