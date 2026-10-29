@@ -444,6 +444,11 @@ export const submitContactMessage = async (payload) => {
 export const getContactMessages = async () => {
   const snapshot = await getDocs(collection(db, 'contactMessages'));
 
+  const normalizeStatus = (value) => {
+    if (value === 'read' || value === 'replied') return value;
+    return 'new';
+  };
+
   return snapshot.docs
     .map((docSnapshot) => {
       const data = docSnapshot.data();
@@ -461,7 +466,12 @@ export const getContactMessages = async () => {
               value: item.value || '',
             }))
           : [],
-        status: data.status === 'read' ? 'read' : 'new',
+        status: normalizeStatus(data.status),
+        replyText: data.replyText || '',
+        repliedAt:
+          data.repliedAt && typeof data.repliedAt.toDate === 'function'
+            ? data.repliedAt.toDate()
+            : null,
         createdAt:
           data.createdAt && typeof data.createdAt.toDate === 'function'
             ? data.createdAt.toDate()
@@ -477,8 +487,24 @@ export const getContactMessages = async () => {
 
 export const updateContactMessageStatus = async (id, status) => {
   if (!id) throw new Error('Missing message id');
+  const next =
+    status === 'read' || status === 'replied' ? status : 'new';
   await updateDoc(doc(db, 'contactMessages', id), {
-    status: status === 'read' ? 'read' : 'new',
+    status: next,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const saveContactReply = async (id, replyText) => {
+  if (!id) throw new Error('Missing message id');
+  const text = String(replyText || '').trim();
+  if (!text) throw new Error('empty-reply');
+  if (text.length > 5000) throw new Error('reply-too-long');
+
+  await updateDoc(doc(db, 'contactMessages', id), {
+    status: 'replied',
+    replyText: text,
+    repliedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
 };
