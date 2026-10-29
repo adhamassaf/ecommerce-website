@@ -24,11 +24,30 @@ const EMPTY_FORM = {
   message: '',
 };
 
+const normalizeCustomFields = (raw) => {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => ({
+      id: item.id || '',
+      type: ['text', 'textarea', 'select'].includes(item.type)
+        ? item.type
+        : 'text',
+      label: normalizeLocaleValue(item.label),
+      required: Boolean(item.required),
+      options: Array.isArray(item.options)
+        ? item.options.map((opt) => normalizeLocaleValue(opt))
+        : [],
+    }))
+    .filter((item) => item.id)
+    .slice(0, 20);
+};
+
 const Contact = () => {
   const { language, t, dir } = useContext(LanguageContext);
   const [settings, setSettings] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [customValues, setCustomValues] = useState({});
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -52,6 +71,11 @@ const Contact = () => {
       active = false;
     };
   }, []);
+
+  const customFields = useMemo(
+    () => normalizeCustomFields(settings && settings.contactCustomFields),
+    [settings]
+  );
 
   const info = useMemo(() => {
     const data = settings || {};
@@ -108,6 +132,11 @@ const Contact = () => {
     setErrors((previous) => ({ ...previous, [field]: '' }));
   };
 
+  const handleCustomChange = (fieldId, value) => {
+    setCustomValues((previous) => ({ ...previous, [fieldId]: value }));
+    setErrors((previous) => ({ ...previous, [`custom_${fieldId}`]: '' }));
+  };
+
   const validate = () => {
     const next = {};
     const name = form.name.trim();
@@ -130,6 +159,13 @@ const Contact = () => {
       if (state.status !== 'valid') next.phone = t('contactErrorPhone');
     }
 
+    customFields.forEach((field) => {
+      const value = String(customValues[field.id] || '').trim();
+      if (field.required && !value) {
+        next[`custom_${field.id}`] = t('contactErrorRequiredField');
+      }
+    });
+
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -142,15 +178,23 @@ const Contact = () => {
 
     setIsSubmitting(true);
 
+    const payloadCustomValues = customFields.map((field) => ({
+      id: field.id,
+      label: getLocalized(field.label, language, field.label.en || field.label.ar),
+      value: String(customValues[field.id] || '').trim(),
+    }));
+
     try {
       await submitContactMessage({
         name: form.name.trim(),
         email: form.email.trim(),
-        phone: form.phone.trim(),
+        phone: info.showPhone ? form.phone.trim() : '',
         subject: form.subject.trim(),
         message: form.message.trim(),
+        customValues: payloadCustomValues,
       });
       setForm(EMPTY_FORM);
+      setCustomValues({});
       setShowSuccess(true);
     } catch (err) {
       const code = err && (err.message || err.code);
@@ -270,6 +314,89 @@ const Contact = () => {
                 </div>
               )}
             </div>
+
+            {customFields.map((field) => {
+              const label = getLocalized(
+                field.label,
+                language,
+                field.label.en || field.label.ar
+              );
+              const errorKey = `custom_${field.id}`;
+              const value = customValues[field.id] || '';
+
+              if (field.type === 'textarea') {
+                return (
+                  <label
+                    key={field.id}
+                    className='contact-field contact-field-full'
+                  >
+                    <span>
+                      {label}
+                      {field.required ? <em> *</em> : null}
+                    </span>
+                    <textarea
+                      value={value}
+                      onChange={(event) =>
+                        handleCustomChange(field.id, event.target.value)
+                      }
+                      rows={4}
+                      maxLength={1000}
+                    />
+                    {errors[errorKey] && <small>{errors[errorKey]}</small>}
+                  </label>
+                );
+              }
+
+              if (field.type === 'select') {
+                return (
+                  <label key={field.id} className='contact-field'>
+                    <span>
+                      {label}
+                      {field.required ? <em> *</em> : null}
+                    </span>
+                    <select
+                      value={value}
+                      onChange={(event) =>
+                        handleCustomChange(field.id, event.target.value)
+                      }
+                    >
+                      <option value=''>{t('customFieldSelectPlaceholder')}</option>
+                      {field.options.map((option, index) => {
+                        const optionLabel = getLocalized(
+                          option,
+                          language,
+                          option.en || option.ar
+                        );
+                        return (
+                          <option key={`${field.id}_${index}`} value={optionLabel}>
+                            {optionLabel}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    {errors[errorKey] && <small>{errors[errorKey]}</small>}
+                  </label>
+                );
+              }
+
+              return (
+                <label key={field.id} className='contact-field'>
+                  <span>
+                    {label}
+                    {field.required ? <em> *</em> : null}
+                  </span>
+                  <input
+                    type='text'
+                    value={value}
+                    onChange={(event) =>
+                      handleCustomChange(field.id, event.target.value)
+                    }
+                    maxLength={300}
+                  />
+                  {errors[errorKey] && <small>{errors[errorKey]}</small>}
+                </label>
+              );
+            })}
 
             <label className='contact-field contact-field-full'>
               <span>

@@ -943,3 +943,25 @@
     overflow: hidden;
     word-break: break-word;
   }
+
+  .admin-custom-field-card {
+    margin-top: 8px;
+    padding: 16px;
+    border: 1px solid var(--admin-line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--admin-surface) 92%, var(--admin-bg));
+  }
+
+  .admin-custom-field-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .admin-custom-field-options {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--admin-line);
+  }

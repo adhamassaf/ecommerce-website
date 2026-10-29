@@ -404,6 +404,16 @@ export const submitContactMessage = async (payload) => {
   const phone = String(payload.phone || '').trim();
   const subject = String(payload.subject || '').trim();
   const message = String(payload.message || '').trim();
+  const customValues = Array.isArray(payload.customValues)
+    ? payload.customValues
+        .map((item) => ({
+          id: String(item.id || ''),
+          label: String(item.label || '').trim().slice(0, 120),
+          value: String(item.value || '').trim().slice(0, 1000),
+        }))
+        .filter((item) => item.id)
+        .slice(0, 20)
+    : [];
 
   if (!name || !email || !subject || !message) {
     throw new Error('missing-fields');
@@ -423,6 +433,7 @@ export const submitContactMessage = async (payload) => {
     phone,
     subject,
     message,
+    customValues,
     status: 'new',
     createdAt: serverTimestamp(),
   });
@@ -443,6 +454,13 @@ export const getContactMessages = async () => {
         phone: data.phone || '',
         subject: data.subject || '',
         message: data.message || '',
+        customValues: Array.isArray(data.customValues)
+          ? data.customValues.map((item) => ({
+              id: item.id || '',
+              label: item.label || '',
+              value: item.value || '',
+            }))
+          : [],
         status: data.status === 'read' ? 'read' : 'new',
         createdAt:
           data.createdAt && typeof data.createdAt.toDate === 'function'

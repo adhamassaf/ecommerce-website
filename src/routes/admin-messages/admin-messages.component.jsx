@@ -235,6 +235,20 @@ const AdminMessages = () => {
                             <h3>{t('contactPhone')}</h3>
                             <p dir='ltr'>{message.phone || '-'}</p>
                           </div>
+                          {Array.isArray(message.customValues) &&
+                            message.customValues.length > 0 && (
+                              <div className='admin-form-wide'>
+                                <h3>{t('customFieldsTitle')}</h3>
+                                <ul style={{ margin: 0, paddingInlineStart: 18 }}>
+                                  {message.customValues.map((item) => (
+                                    <li key={item.id || item.label} dir='auto'>
+                                      <strong>{item.label || '-'}: </strong>
+                                      <span>{item.value || '-'}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                         </div>
                       </td>
                     </tr>
