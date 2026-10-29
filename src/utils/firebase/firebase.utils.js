@@ -398,6 +398,78 @@ export const getSiteSettings = async () => {
 export const saveSiteSettings = async (settings) =>
   setDoc(doc(db, 'settings', 'site'), settings, { merge: true });
 
+export const submitContactMessage = async (payload) => {
+  const name = String(payload.name || '').trim();
+  const email = String(payload.email || '').trim().toLowerCase();
+  const phone = String(payload.phone || '').trim();
+  const subject = String(payload.subject || '').trim();
+  const message = String(payload.message || '').trim();
+
+  if (!name || !email || !subject || !message) {
+    throw new Error('missing-fields');
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error('invalid-email');
+  }
+
+  if (name.length > 100 || subject.length > 150 || message.length > 2000) {
+    throw new Error('too-long');
+  }
+
+  const docRef = await addDoc(collection(db, 'contactMessages'), {
+    name,
+    email,
+    phone,
+    subject,
+    message,
+    status: 'new',
+    createdAt: serverTimestamp(),
+  });
+
+  return docRef.id;
+};
+
+export const getContactMessages = async () => {
+  const snapshot = await getDocs(collection(db, 'contactMessages'));
+
+  return snapshot.docs
+    .map((docSnapshot) => {
+      const data = docSnapshot.data();
+      return {
+        id: docSnapshot.id,
+        name: data.name || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        subject: data.subject || '',
+        message: data.message || '',
+        status: data.status === 'read' ? 'read' : 'new',
+        createdAt:
+          data.createdAt && typeof data.createdAt.toDate === 'function'
+            ? data.createdAt.toDate()
+            : null,
+      };
+    })
+    .sort(
+      (a, b) =>
+        (b.createdAt ? b.createdAt.getTime() : 0) -
+        (a.createdAt ? a.createdAt.getTime() : 0)
+    );
+};
+
+export const updateContactMessageStatus = async (id, status) => {
+  if (!id) throw new Error('Missing message id');
+  await updateDoc(doc(db, 'contactMessages', id), {
+    status: status === 'read' ? 'read' : 'new',
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const deleteContactMessage = async (id) => {
+  if (!id) throw new Error('Missing message id');
+  await deleteDoc(doc(db, 'contactMessages', id));
+};
+
 export const createUserDocumentFromAuth = async (
   userAuth,
   additionalInformation = {}

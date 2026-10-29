@@ -9,6 +9,7 @@ import {
   ProductsIcon,
   OrdersIcon,
   UsersIcon,
+  MessagesIcon,
   SettingsIcon,
   ArrowIcon,
 } from '../../components/admin-icons/admin-icons.component.jsx';
@@ -39,6 +40,7 @@ const Admin = () => {
     { to: '/admin/products', label: t('adminProducts'), Icon: ProductsIcon },
     { to: '/admin/orders', label: t('adminOrders'), Icon: OrdersIcon },
     { to: '/admin/users', label: t('adminUsers'), Icon: UsersIcon },
+    { to: '/admin/messages', label: t('adminMessages'), Icon: MessagesIcon },
     { to: '/admin/settings', label: t('adminSettings'), Icon: SettingsIcon },
   ];
 

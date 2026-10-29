@@ -51,6 +51,10 @@ const Navigation = () => {
               {t('shop')}
             </Link>
 
+            <Link className='nav-link' to='/contactUs'>
+              {t('contactUs')}
+            </Link>
+
             {isAdmin && (
               <Link className='nav-link' to='/admin'>
                 {t('admin')}

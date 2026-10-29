@@ -9,7 +9,7 @@ export const PHONE_COUNTRIES = [
   { iso: 'OM', name: 'Oman', nameAr: 'عُمان', dial: '968', flag: '🇴🇲', lengths: [8] },
   { iso: 'LB', name: 'Lebanon', nameAr: 'لبنان', dial: '961', flag: '🇱🇧', lengths: [7, 8] },
   { iso: 'IQ', name: 'Iraq', nameAr: 'العراق', dial: '964', flag: '🇮🇶', lengths: [10] },
-  { iso: 'SY', name: 'Syria', nameAr: 'سوريا', dial: '963', flag: '🇸🇾', lengths: [9] },
+  { iso: 'SY', name: 'Syria', nameAr: 'سوريا', dial: '963', flag: '🇸🇾', lengths: [9, 10] },
   { iso: 'PS', name: 'Palestine', nameAr: 'فلسطين', dial: '970', flag: '🇵🇸', lengths: [9] },
   { iso: 'YE', name: 'Yemen', nameAr: 'اليمن', dial: '967', flag: '🇾🇪', lengths: [9] },
   { iso: 'MA', name: 'Morocco', nameAr: 'المغرب', dial: '212', flag: '🇲🇦', lengths: [9] },
@@ -73,11 +73,20 @@ export const isValidNationalNumber = (iso, national) => {
 };
 
 export const getPhoneValidationState = (iso, national) => {
-  const local = digitsOnly(national);
+  let local = digitsOnly(national);
   const country = getPhoneCountry(iso);
 
   if (!local) {
     return { status: 'empty', messageEn: '', messageAr: '' };
+  }
+
+  // Users often type a leading trunk 0 with the country already selected.
+  if (
+    local.startsWith('0') &&
+    !country.lengths.includes(local.length) &&
+    country.lengths.includes(local.length - 1)
+  ) {
+    local = local.slice(1);
   }
 
   const maxLen = Math.max(...country.lengths);
