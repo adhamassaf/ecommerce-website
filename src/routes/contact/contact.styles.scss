@@ -21,6 +21,14 @@
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: 22px;
   align-items: stretch;
+
+  &.contact-layout--no-map {
+    grid-template-columns: 1fr;
+  }
+}
+
+.contact-form-row--single {
+  grid-template-columns: 1fr;
 }
 
 .contact-info-panel,

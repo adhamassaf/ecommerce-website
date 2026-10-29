@@ -25,6 +25,9 @@ const AdminSettings = () => {
     contactMapLng: '',
     contactMapZoom: '14',
     contactMapQuery: '',
+    contactShowMap: true,
+    contactShowStoreInfo: true,
+    contactShowPhone: true,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -52,6 +55,9 @@ const AdminSettings = () => {
           contactMapZoom:
             data.contactMapZoom != null ? String(data.contactMapZoom) : '14',
           contactMapQuery: data.contactMapQuery || '',
+          contactShowMap: data.contactShowMap !== false,
+          contactShowStoreInfo: data.contactShowStoreInfo !== false,
+          contactShowPhone: data.contactShowPhone !== false,
         });
       })
       .catch((err) => {
@@ -142,6 +148,9 @@ const AdminSettings = () => {
         contactMapLng,
         contactMapZoom,
         contactMapQuery: settings.contactMapQuery.trim(),
+        contactShowMap: Boolean(settings.contactShowMap),
+        contactShowStoreInfo: Boolean(settings.contactShowStoreInfo),
+        contactShowPhone: Boolean(settings.contactShowPhone),
       });
 
       setFeedback({ type: 'success', text: t('settingsSaved') });
@@ -206,6 +215,45 @@ const AdminSettings = () => {
         )}
 
         <h2 className='admin-panel-title admin-form-wide'>{t('contactSettingsTitle')}</h2>
+        <label className='admin-checkbox admin-form-wide'>
+          <input
+            type='checkbox'
+            checked={settings.contactShowStoreInfo}
+            onChange={(event) =>
+              setSettings((previous) => ({
+                ...previous,
+                contactShowStoreInfo: event.target.checked,
+              }))
+            }
+          />
+          <span>{t('contactShowStoreInfo')}</span>
+        </label>
+        <label className='admin-checkbox admin-form-wide'>
+          <input
+            type='checkbox'
+            checked={settings.contactShowMap}
+            onChange={(event) =>
+              setSettings((previous) => ({
+                ...previous,
+                contactShowMap: event.target.checked,
+              }))
+            }
+          />
+          <span>{t('contactShowMap')}</span>
+        </label>
+        <label className='admin-checkbox admin-form-wide'>
+          <input
+            type='checkbox'
+            checked={settings.contactShowPhone}
+            onChange={(event) =>
+              setSettings((previous) => ({
+                ...previous,
+                contactShowPhone: event.target.checked,
+              }))
+            }
+          />
+          <span>{t('contactShowPhone')}</span>
+        </label>
         <AdminField
           label={t('contactTitleField')}
           type='text'
@@ -219,111 +267,125 @@ const AdminSettings = () => {
           onChange={() => {}}
           hint={t('pressGlobeHint')}
         />
-        <AdminField
-          label={t('contactStoreNameField')}
-          type='text'
-          dir='ltr'
-          value={settings.contactStoreName?.en || ''}
-          localeValue={settings.contactStoreName}
-          translatable
-          onLocaleChange={(next) =>
-            setSettings((previous) => ({ ...previous, contactStoreName: next }))
-          }
-          onChange={() => {}}
-          hint={t('pressGlobeHint')}
-        />
-        <div className='admin-form-wide'>
-          <AdminField
-            as='textarea'
-            label={t('contactAddressField')}
-            dir='ltr'
-            value={settings.contactAddress?.en || ''}
-            localeValue={settings.contactAddress}
-            translatable
-            onLocaleChange={(next) =>
-              setSettings((previous) => ({ ...previous, contactAddress: next }))
-            }
-            onChange={() => {}}
-            hint={t('pressGlobeHint')}
-          />
-        </div>
-        <AdminField
-          label={t('contactEmailLabel')}
-          type='email'
-          dir='ltr'
-          value={settings.contactEmail}
-          onChange={(event) =>
-            setSettings((previous) => ({
-              ...previous,
-              contactEmail: event.target.value,
-            }))
-          }
-        />
-        <AdminField
-          label={t('contactPhoneLabel')}
-          type='text'
-          dir='ltr'
-          value={settings.contactPhone}
-          onChange={(event) =>
-            setSettings((previous) => ({
-              ...previous,
-              contactPhone: event.target.value,
-            }))
-          }
-        />
-        <AdminField
-          label={t('contactMapLat')}
-          type='text'
-          dir='ltr'
-          value={settings.contactMapLat}
-          onChange={(event) =>
-            setSettings((previous) => ({
-              ...previous,
-              contactMapLat: event.target.value,
-            }))
-          }
-          hint={t('contactMapCoordsHint')}
-        />
-        <AdminField
-          label={t('contactMapLng')}
-          type='text'
-          dir='ltr'
-          value={settings.contactMapLng}
-          onChange={(event) =>
-            setSettings((previous) => ({
-              ...previous,
-              contactMapLng: event.target.value,
-            }))
-          }
-        />
-        <AdminField
-          label={t('contactMapZoom')}
-          type='number'
-          min='1'
-          max='20'
-          value={settings.contactMapZoom}
-          onChange={(event) =>
-            setSettings((previous) => ({
-              ...previous,
-              contactMapZoom: event.target.value,
-            }))
-          }
-        />
-        <div className='admin-form-wide'>
-          <AdminField
-            label={t('contactMapQuery')}
-            type='text'
-            dir='ltr'
-            value={settings.contactMapQuery}
-            onChange={(event) =>
-              setSettings((previous) => ({
-                ...previous,
-                contactMapQuery: event.target.value,
-              }))
-            }
-            hint={t('contactMapQueryHint')}
-          />
-        </div>
+        {settings.contactShowStoreInfo && (
+          <>
+            <AdminField
+              label={t('contactStoreNameField')}
+              type='text'
+              dir='ltr'
+              value={settings.contactStoreName?.en || ''}
+              localeValue={settings.contactStoreName}
+              translatable
+              onLocaleChange={(next) =>
+                setSettings((previous) => ({
+                  ...previous,
+                  contactStoreName: next,
+                }))
+              }
+              onChange={() => {}}
+              hint={t('pressGlobeHint')}
+            />
+            <div className='admin-form-wide'>
+              <AdminField
+                as='textarea'
+                label={t('contactAddressField')}
+                dir='ltr'
+                value={settings.contactAddress?.en || ''}
+                localeValue={settings.contactAddress}
+                translatable
+                onLocaleChange={(next) =>
+                  setSettings((previous) => ({
+                    ...previous,
+                    contactAddress: next,
+                  }))
+                }
+                onChange={() => {}}
+                hint={t('pressGlobeHint')}
+              />
+            </div>
+            <AdminField
+              label={t('contactEmailLabel')}
+              type='email'
+              dir='ltr'
+              value={settings.contactEmail}
+              onChange={(event) =>
+                setSettings((previous) => ({
+                  ...previous,
+                  contactEmail: event.target.value,
+                }))
+              }
+            />
+            <AdminField
+              label={t('contactPhoneLabel')}
+              type='text'
+              dir='ltr'
+              value={settings.contactPhone}
+              onChange={(event) =>
+                setSettings((previous) => ({
+                  ...previous,
+                  contactPhone: event.target.value,
+                }))
+              }
+            />
+          </>
+        )}
+        {settings.contactShowMap && (
+          <>
+            <AdminField
+              label={t('contactMapLat')}
+              type='text'
+              dir='ltr'
+              value={settings.contactMapLat}
+              onChange={(event) =>
+                setSettings((previous) => ({
+                  ...previous,
+                  contactMapLat: event.target.value,
+                }))
+              }
+              hint={t('contactMapCoordsHint')}
+            />
+            <AdminField
+              label={t('contactMapLng')}
+              type='text'
+              dir='ltr'
+              value={settings.contactMapLng}
+              onChange={(event) =>
+                setSettings((previous) => ({
+                  ...previous,
+                  contactMapLng: event.target.value,
+                }))
+              }
+            />
+            <AdminField
+              label={t('contactMapZoom')}
+              type='number'
+              min='1'
+              max='20'
+              value={settings.contactMapZoom}
+              onChange={(event) =>
+                setSettings((previous) => ({
+                  ...previous,
+                  contactMapZoom: event.target.value,
+                }))
+              }
+            />
+            <div className='admin-form-wide'>
+              <AdminField
+                label={t('contactMapQuery')}
+                type='text'
+                dir='ltr'
+                value={settings.contactMapQuery}
+                onChange={(event) =>
+                  setSettings((previous) => ({
+                    ...previous,
+                    contactMapQuery: event.target.value,
+                  }))
+                }
+                hint={t('contactMapQueryHint')}
+              />
+            </div>
+          </>
+        )}
 
         <div className='admin-form-actions'>
           <button className='admin-button' type='submit' disabled={isSaving}>

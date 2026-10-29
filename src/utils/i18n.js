@@ -341,6 +341,9 @@ export const UI_TRANSLATIONS = {
     contactMapZoomInvalid: 'Zoom must be between 1 and 20.',
     announcementRequired: 'Enter announcement text or turn the bar off.',
     settingsSaved: 'Settings saved.',
+    contactShowMap: 'Show map section',
+    contactShowStoreInfo: 'Show store info card (name, address, email, phone)',
+    contactShowPhone: 'Show phone field on the form',
   },
   ar: {
     shop: 'المتجر',
@@ -648,5 +651,8 @@ export const UI_TRANSLATIONS = {
     contactMapZoomInvalid: 'التكبير يجب أن يكون بين 1 و 20.',
     announcementRequired: 'اكتب نص الإعلان أو أوقف عرضه.',
     settingsSaved: 'تم حفظ الإعدادات.',
+    contactShowMap: 'إظهار قسم الخريطة',
+    contactShowStoreInfo: 'إظهار بطاقة معلومات المتجر (اسم، عنوان، إيميل، هاتف)',
+    contactShowPhone: 'إظهار حقل الهاتف في النموذج',
   },
 };

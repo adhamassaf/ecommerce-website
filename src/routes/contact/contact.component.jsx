@@ -77,10 +77,15 @@ const Contact = () => {
       lng: Number(data.contactMapLng),
       zoom: Number(data.contactMapZoom) || 14,
       mapQuery: String(data.contactMapQuery || '').trim(),
+      showMap: data.contactShowMap !== false,
+      showStoreInfo: data.contactShowStoreInfo !== false,
+      showPhone: data.contactShowPhone !== false,
     };
   }, [settings, language, t]);
 
   const mapSrc = useMemo(() => {
+    if (!info.showMap) return '';
+
     if (Number.isFinite(info.lat) && Number.isFinite(info.lng)) {
       return `https://maps.google.com/maps?q=${info.lat},${info.lng}&z=${info.zoom}&output=embed`;
     }
@@ -119,7 +124,7 @@ const Contact = () => {
     if (!message) next.message = t('contactErrorMessage');
     else if (message.length < 10) next.message = t('contactErrorMessageShort');
 
-    if (form.phone.trim()) {
+    if (info.showPhone && form.phone.trim()) {
       const parsed = parsePhoneValue(form.phone);
       const state = getPhoneValidationState(parsed.iso, parsed.national);
       if (state.status !== 'valid') next.phone = t('contactErrorPhone');
@@ -166,33 +171,41 @@ const Contact = () => {
         <h1>{info.title}</h1>
       </header>
 
-      <div className='contact-layout'>
+      <div
+        className={`contact-layout${info.showMap ? '' : ' contact-layout--no-map'}`}
+      >
         <section className='contact-info-panel'>
-          {info.storeName && <h2>{info.storeName}</h2>}
-          <ul className='contact-info-list'>
-            {info.address && (
-              <li>
-                <strong>{t('contactAddressLabel')}</strong>
-                <span dir='auto'>{info.address}</span>
-              </li>
-            )}
-            {info.email && (
-              <li>
-                <strong>{t('contactEmailLabel')}</strong>
-                <a href={`mailto:${info.email}`} dir='ltr'>
-                  {info.email}
-                </a>
-              </li>
-            )}
-            {info.phone && (
-              <li>
-                <strong>{t('contactPhoneLabel')}</strong>
-                <a href={`tel:${info.phone}`} dir='ltr'>
-                  {info.phone}
-                </a>
-              </li>
-            )}
-          </ul>
+          {info.showStoreInfo && (
+            <>
+              {info.storeName && <h2>{info.storeName}</h2>}
+              {(info.address || info.email || info.phone) && (
+                <ul className='contact-info-list'>
+                  {info.address && (
+                    <li>
+                      <strong>{t('contactAddressLabel')}</strong>
+                      <span dir='auto'>{info.address}</span>
+                    </li>
+                  )}
+                  {info.email && (
+                    <li>
+                      <strong>{t('contactEmailLabel')}</strong>
+                      <a href={`mailto:${info.email}`} dir='ltr'>
+                        {info.email}
+                      </a>
+                    </li>
+                  )}
+                  {info.phone && (
+                    <li>
+                      <strong>{t('contactPhoneLabel')}</strong>
+                      <a href={`tel:${info.phone}`} dir='ltr'>
+                        {info.phone}
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              )}
+            </>
+          )}
 
           <form className='contact-form' onSubmit={handleSubmit} noValidate>
             <div className='contact-form-row'>
@@ -225,7 +238,11 @@ const Contact = () => {
               </label>
             </div>
 
-            <div className='contact-form-row'>
+            <div
+              className={`contact-form-row${
+                info.showPhone ? '' : ' contact-form-row--single'
+              }`}
+            >
               <label className='contact-field'>
                 <span>
                   {t('contactSubject')} <em>*</em>
@@ -238,18 +255,20 @@ const Contact = () => {
                 />
                 {errors.subject && <small>{errors.subject}</small>}
               </label>
-              <div className='contact-field'>
-                <span>{t('contactPhone')}</span>
-                <PhoneInput
-                  value={form.phone}
-                  onChange={(value) => {
-                    setForm((previous) => ({ ...previous, phone: value }));
-                    setErrors((previous) => ({ ...previous, phone: '' }));
-                  }}
-                  language={language}
-                />
-                {errors.phone && <small>{errors.phone}</small>}
-              </div>
+              {info.showPhone && (
+                <div className='contact-field'>
+                  <span>{t('contactPhone')}</span>
+                  <PhoneInput
+                    value={form.phone}
+                    onChange={(value) => {
+                      setForm((previous) => ({ ...previous, phone: value }));
+                      setErrors((previous) => ({ ...previous, phone: '' }));
+                    }}
+                    language={language}
+                  />
+                  {errors.phone && <small>{errors.phone}</small>}
+                </div>
+              )}
             </div>
 
             <label className='contact-field contact-field-full'>
@@ -281,19 +300,21 @@ const Contact = () => {
           </form>
         </section>
 
-        <section className='contact-map-panel'>
-          {mapSrc ? (
-            <iframe
-              title={t('contactMapTitle')}
-              src={mapSrc}
-              loading='lazy'
-              referrerPolicy='no-referrer-when-downgrade'
-              allowFullScreen
-            />
-          ) : (
-            <div className='contact-map-empty'>{t('contactMapEmpty')}</div>
-          )}
-        </section>
+        {info.showMap && (
+          <section className='contact-map-panel'>
+            {mapSrc ? (
+              <iframe
+                title={t('contactMapTitle')}
+                src={mapSrc}
+                loading='lazy'
+                referrerPolicy='no-referrer-when-downgrade'
+                allowFullScreen
+              />
+            ) : (
+              <div className='contact-map-empty'>{t('contactMapEmpty')}</div>
+            )}
+          </section>
+        )}
       </div>
 
       {showSuccess && (
