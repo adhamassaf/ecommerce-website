@@ -105,9 +105,9 @@
 
   .admin-role-badge {
     &.is-admin {
-      background: var(--admin-gold-soft);
-      color: var(--admin-gold-deep);
-      border: 1px solid color-mix(in srgb, var(--admin-gold) 35%, var(--admin-line));
+      background: color-mix(in srgb, var(--admin-gold) 28%, var(--admin-surface));
+      color: var(--admin-ink);
+      border: 1px solid color-mix(in srgb, var(--admin-gold) 45%, var(--admin-line));
     }
 
     &.is-customer {
@@ -119,15 +119,15 @@
 
   .admin-status-badge {
     &.is-active {
-      background: var(--admin-success-soft, #e5f5ec);
-      color: var(--admin-success, #1f8a52);
-      border: 1px solid color-mix(in srgb, var(--admin-success, #1f8a52) 25%, transparent);
+      background: color-mix(in srgb, var(--admin-success, #1f8a52) 22%, var(--admin-surface));
+      color: var(--admin-ink);
+      border: 1px solid color-mix(in srgb, var(--admin-success, #1f8a52) 35%, var(--admin-line));
     }
 
     &.is-disabled {
-      background: var(--admin-danger-soft, #fdeceb);
-      color: var(--admin-danger, #c0392b);
-      border: 1px solid color-mix(in srgb, var(--admin-danger, #c0392b) 25%, transparent);
+      background: color-mix(in srgb, var(--admin-danger, #c0392b) 18%, var(--admin-surface));
+      color: var(--admin-ink);
+      border: 1px solid color-mix(in srgb, var(--admin-danger, #c0392b) 30%, var(--admin-line));
     }
   }
 

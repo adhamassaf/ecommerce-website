@@ -160,6 +160,9 @@ html[data-mode='dark'][data-palette='ocean'] {
   --brand: #5cc0f0;
   --brand-contrast: #062638;
   --accent: #2f9ed8;
+  --admin-gold: #5cc0f0;
+  --admin-gold-deep: #b8e4f8;
+  --admin-gold-soft: color-mix(in srgb, #5cc0f0 22%, #211c18);
 }
 
 html[data-mode='dark'][data-palette='rose'] {

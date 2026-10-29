@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 
 import { CartContext } from '../../contexts/cart.context.jsx';
+import { LanguageContext } from '../../contexts/language.context.jsx';
 
 import './toast.styles.scss';
 
@@ -8,6 +9,7 @@ const TOAST_DURATION = 2000;
 
 const Toast = () => {
   const { lastAdded } = useContext(CartContext);
+  const { t } = useContext(LanguageContext);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -23,7 +25,7 @@ const Toast = () => {
   const message = lastAdded
     ? `${lastAdded.name}${
         lastAdded.quantity > 1 ? ` × ${lastAdded.quantity}` : ''
-      } added to cart`
+      } ${t('toastAddedToCart')}`
     : '';
 
   return (
