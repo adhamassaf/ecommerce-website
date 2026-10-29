@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, deleteApp } from 'firebase/app';
 import {
   getAuth,
   signInWithRedirect,
@@ -193,12 +193,112 @@ export const getUserDocuments = async () => {
       phone: data.phone || '',
       photoURL: data.photoURL || '',
       isAdmin: adminIds.has(docSnapshot.id),
+      disabled: Boolean(data.disabled),
       createdAt:
         data.createdAt && typeof data.createdAt.toDate === 'function'
           ? data.createdAt.toDate()
           : null,
     };
   });
+};
+
+export const createUserByAdmin = async ({
+  email,
+  password,
+  displayName = '',
+  makeAdmin = false,
+}) => {
+  const trimmedEmail = String(email || '').trim().toLowerCase();
+  const trimmedName = String(displayName || '').trim();
+  const trimmedPassword = String(password || '');
+
+  if (!trimmedEmail || !trimmedPassword) {
+    throw new Error('missing-fields');
+  }
+
+  if (trimmedPassword.length < 6) {
+    throw new Error('weak-password');
+  }
+
+  const secondaryApp = initializeApp(firebaseConfig, `admin-create-${Date.now()}`);
+
+  try {
+    const secondaryAuth = getAuth(secondaryApp);
+    const credential = await createUserWithEmailAndPassword(
+      secondaryAuth,
+      trimmedEmail,
+      trimmedPassword
+    );
+    const { user } = credential;
+
+    if (trimmedName) {
+      await updateProfile(user, { displayName: trimmedName });
+    }
+
+    await setDoc(
+      doc(db, 'users', user.uid),
+      {
+        email: trimmedEmail,
+        displayName: trimmedName,
+        phone: '',
+        photoURL: '',
+        disabled: false,
+        createdAt: serverTimestamp(),
+        createdByAdmin: true,
+      },
+      { merge: true }
+    );
+
+    if (makeAdmin) {
+      await setDoc(doc(db, 'admins', user.uid), {
+        role: 'admin',
+        createdAt: serverTimestamp(),
+      });
+    }
+
+    await signOut(secondaryAuth);
+
+    return {
+      id: user.uid,
+      email: trimmedEmail,
+      displayName: trimmedName,
+      phone: '',
+      photoURL: '',
+      isAdmin: Boolean(makeAdmin),
+      disabled: false,
+      createdAt: new Date(),
+    };
+  } finally {
+    await deleteApp(secondaryApp);
+  }
+};
+
+export const setUserDisabled = async (uid, disabled) => {
+  if (!uid) throw new Error('Missing user id');
+
+  await setDoc(
+    doc(db, 'users', uid),
+    {
+      disabled: Boolean(disabled),
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+};
+
+export const setUserAdminRole = async (uid, isAdmin) => {
+  if (!uid) throw new Error('Missing user id');
+
+  const adminRef = doc(db, 'admins', uid);
+
+  if (isAdmin) {
+    await setDoc(adminRef, {
+      role: 'admin',
+      updatedAt: serverTimestamp(),
+    });
+  } else {
+    await deleteDoc(adminRef);
+  }
 };
 
 export const getUsersCount = async () => {
@@ -358,6 +458,7 @@ export const getUserProfile = async (uid) => {
     displayName: data.displayName || '',
     photoURL: data.photoURL || '',
     phone: data.phone || '',
+    disabled: Boolean(data.disabled),
   };
 };
 

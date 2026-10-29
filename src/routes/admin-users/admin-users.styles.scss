@@ -1,4 +1,8 @@
 .admin-users-page {
+  .admin-users-toolbar {
+    margin-bottom: 8px;
+  }
+
   .admin-users-filters {
     display: flex;
     flex-wrap: wrap;
@@ -11,10 +15,10 @@
     align-items: center;
     gap: 10px;
     padding: 10px 14px;
-    border: 1px solid #e6e0d4;
+    border: 1px solid var(--admin-line);
     border-radius: 999px;
-    background: var(--surface);
-    color: #5c564c;
+    background: var(--admin-surface);
+    color: var(--admin-ink-soft);
     font: inherit;
     font-size: 13px;
     font-weight: 600;
@@ -26,27 +30,27 @@
       min-width: 22px;
       padding: 2px 8px;
       border-radius: 999px;
-      background: #f3efe6;
-      color: #7a7162;
+      background: var(--admin-gold-soft);
+      color: var(--admin-ink-soft);
       font-style: normal;
       font-size: 12px;
       text-align: center;
     }
 
     &:hover {
-      border-color: #d4c7a8;
-      background: #faf7f1;
+      border-color: var(--admin-gold);
+      background: var(--admin-gold-soft);
     }
 
     &.active {
-      border-color: #1a140f;
-      background: #1a140f;
-      color: #f5e6c8;
+      border-color: var(--admin-ink);
+      background: var(--admin-ink);
+      color: var(--admin-bg);
       box-shadow: 0 6px 16px rgba(26, 20, 15, 0.18);
 
       em {
-        background: rgba(245, 230, 200, 0.18);
-        color: #f5e6c8;
+        background: rgba(255, 255, 255, 0.16);
+        color: inherit;
       }
     }
   }
@@ -63,8 +67,8 @@
     height: 36px;
     border-radius: 50%;
     overflow: hidden;
-    background: #f0ebe3;
-    color: #6b6256;
+    background: var(--admin-gold-soft);
+    color: var(--admin-ink-soft);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -82,10 +86,11 @@
 
   .admin-user-name {
     font-weight: 600;
-    color: var(--text);
+    color: var(--admin-ink);
   }
 
-  .admin-role-badge {
+  .admin-role-badge,
+  .admin-status-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -96,17 +101,37 @@
     font-weight: 700;
     letter-spacing: 0.2px;
     white-space: nowrap;
+  }
 
+  .admin-role-badge {
     &.is-admin {
-      background: #f3e7c8;
-      color: #7a5b12;
-      border: 1px solid #e5d19a;
+      background: var(--admin-gold-soft);
+      color: var(--admin-gold-deep);
+      border: 1px solid color-mix(in srgb, var(--admin-gold) 35%, var(--admin-line));
     }
 
     &.is-customer {
-      background: #f1f3f5;
-      color: #5b6570;
-      border: 1px solid #e2e6ea;
+      background: color-mix(in srgb, var(--admin-ink) 12%, var(--admin-surface));
+      color: var(--admin-ink);
+      border: 1px solid color-mix(in srgb, var(--admin-ink) 28%, var(--admin-line));
     }
+  }
+
+  .admin-status-badge {
+    &.is-active {
+      background: var(--admin-success-soft, #e5f5ec);
+      color: var(--admin-success, #1f8a52);
+      border: 1px solid color-mix(in srgb, var(--admin-success, #1f8a52) 25%, transparent);
+    }
+
+    &.is-disabled {
+      background: var(--admin-danger-soft, #fdeceb);
+      color: var(--admin-danger, #c0392b);
+      border: 1px solid color-mix(in srgb, var(--admin-danger, #c0392b) 25%, transparent);
+    }
+  }
+
+  .is-disabled-row {
+    opacity: 0.72;
   }
 }

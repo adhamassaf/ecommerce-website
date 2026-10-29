@@ -5,6 +5,7 @@ import {
   createUserDocumentFromAuth,
   checkIsAdmin,
   getUserProfile,
+  signOutUser,
 } from '../utils/firebase/firebase.utils.js';
 
 export const UserContext = createContext({
@@ -79,6 +80,16 @@ export const UserProvider = ({ children }) => {
           const profile = await getUserProfile(user.uid);
           if (!isActive) return;
 
+          if (profile && profile.disabled) {
+            await signOutUser();
+            if (!isActive) return;
+            setCurrentUser(null);
+            setIsAdmin(false);
+            setUserProfile(null);
+            if (isActive) setIsAuthReady(true);
+            return;
+          }
+
           if (profile) {
             setUserProfile(profile);
           } else {
@@ -88,6 +99,7 @@ export const UserProvider = ({ children }) => {
               displayName: user.displayName || '',
               photoURL: user.photoURL || '',
               phone: '',
+              disabled: false,
             });
           }
         } catch {
@@ -98,6 +110,7 @@ export const UserProvider = ({ children }) => {
               displayName: user.displayName || '',
               photoURL: user.photoURL || '',
               phone: '',
+              disabled: false,
             });
           }
         }
