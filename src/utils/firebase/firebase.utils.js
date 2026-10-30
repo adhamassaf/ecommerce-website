@@ -682,3 +682,136 @@ export const signOutUser = async () => await signOut(auth);
 
 export const onAuthStateChangedListener = (callback) =>
   onAuthStateChanged(auth, callback);
+
+
+const mapLocale = (value) => {
+  if (value && typeof value === 'object') {
+    return {
+      en: value.en != null ? String(value.en) : '',
+      ar: value.ar != null ? String(value.ar) : '',
+    };
+  }
+  if (typeof value === 'string') return { en: value, ar: value };
+  return { en: '', ar: '' };
+};
+
+export const getServiceCategories = async () => {
+  const snapshot = await getDocs(collection(db, 'serviceCategories'));
+  return snapshot.docs
+    .map((docSnapshot) => {
+      const data = docSnapshot.data();
+      return {
+        id: docSnapshot.id,
+        title: mapLocale(data.title),
+        order: typeof data.order === 'number' ? data.order : 0,
+      };
+    })
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+};
+
+export const saveServiceCategory = async (id, payload) => {
+  if (!id) throw new Error('Missing category id');
+  await setDoc(
+    doc(db, 'serviceCategories', id),
+    {
+      title: mapLocale(payload.title),
+      order: typeof payload.order === 'number' ? payload.order : 0,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+};
+
+export const deleteServiceCategory = async (id) => {
+  if (!id) throw new Error('Missing category id');
+  const servicesSnap = await getDocs(
+    query(collection(db, 'services'), where('categoryId', '==', id))
+  );
+  const batch = writeBatch(db);
+  servicesSnap.docs.forEach((item) => batch.delete(item.ref));
+  batch.delete(doc(db, 'serviceCategories', id));
+  await batch.commit();
+};
+
+export const getServices = async () => {
+  const snapshot = await getDocs(collection(db, 'services'));
+  return snapshot.docs
+    .map((docSnapshot) => {
+      const data = docSnapshot.data();
+      return {
+        id: docSnapshot.id,
+        categoryId: data.categoryId || '',
+        title: mapLocale(data.title),
+        summary: mapLocale(data.summary),
+        about: mapLocale(data.about),
+        steps: mapLocale(data.steps),
+        requirements: mapLocale(data.requirements),
+        serviceType: mapLocale(data.serviceType),
+        fees: mapLocale(data.fees),
+        duration: mapLocale(data.duration),
+        output: mapLocale(data.output),
+        availability: mapLocale(data.availability),
+        order: typeof data.order === 'number' ? data.order : 0,
+        enabled: data.enabled !== false,
+      };
+    })
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+};
+
+export const getServiceById = async (id) => {
+  if (!id) return null;
+  const snapshot = await getDoc(doc(db, 'services', id));
+  if (!snapshot.exists()) return null;
+  const data = snapshot.data();
+  return {
+    id: snapshot.id,
+    categoryId: data.categoryId || '',
+    title: mapLocale(data.title),
+    summary: mapLocale(data.summary),
+    about: mapLocale(data.about),
+    steps: mapLocale(data.steps),
+    requirements: mapLocale(data.requirements),
+    serviceType: mapLocale(data.serviceType),
+    fees: mapLocale(data.fees),
+    duration: mapLocale(data.duration),
+    output: mapLocale(data.output),
+    availability: mapLocale(data.availability),
+    order: typeof data.order === 'number' ? data.order : 0,
+    enabled: data.enabled !== false,
+  };
+};
+
+export const saveService = async (id, payload, { isNew = false } = {}) => {
+  if (!id) throw new Error('Missing service id');
+  const ref = doc(db, 'services', id);
+  if (isNew) {
+    const existing = await getDoc(ref);
+    if (existing.exists()) throw new Error('Service id already exists');
+  }
+  await setDoc(
+    ref,
+    {
+      categoryId: String(payload.categoryId || ''),
+      title: mapLocale(payload.title),
+      summary: mapLocale(payload.summary),
+      about: mapLocale(payload.about),
+      steps: mapLocale(payload.steps),
+      requirements: mapLocale(payload.requirements),
+      serviceType: mapLocale(payload.serviceType),
+      fees: mapLocale(payload.fees),
+      duration: mapLocale(payload.duration),
+      output: mapLocale(payload.output),
+      availability: mapLocale(payload.availability),
+      order: typeof payload.order === 'number' ? payload.order : 0,
+      enabled: payload.enabled !== false,
+      updatedAt: serverTimestamp(),
+      ...(isNew ? { createdAt: serverTimestamp() } : {}),
+    },
+    { merge: true }
+  );
+};
+
+export const deleteService = async (id) => {
+  if (!id) throw new Error('Missing service id');
+  await deleteDoc(doc(db, 'services', id));
+};

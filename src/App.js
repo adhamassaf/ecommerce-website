@@ -17,6 +17,10 @@ import AdminOrders from './routes/admin-orders/admin-orders.component.jsx';
 import AdminUsers from './routes/admin-users/admin-users.component.jsx';
 import AdminMessages from './routes/admin-messages/admin-messages.component.jsx';
 import AdminSettings from './routes/admin-settings/admin-settings.component.jsx';
+import AdminServiceCategories from './routes/admin-service-categories/admin-service-categories.component.jsx';
+import AdminServices from './routes/admin-services/admin-services.component.jsx';
+import Services from './routes/services/services.component.jsx';
+import ServiceDetails from './routes/service-details/service-details.component.jsx';
 
 const App = () => {
   return (
@@ -30,6 +34,8 @@ const App = () => {
         <Route path='orders/:orderId' element={<OrderDetails />} />
         <Route path='profile' element={<Profile />} />
         <Route path='contactUs' element={<Contact />} />
+        <Route path='services' element={<Services />} />
+        <Route path='services/:serviceId' element={<ServiceDetails />} />
         <Route path='admin' element={<Admin />}>
           <Route index element={<AdminOverview />} />
           <Route path='categories' element={<AdminCategories />} />
@@ -37,6 +43,8 @@ const App = () => {
           <Route path='orders' element={<AdminOrders />} />
           <Route path='users' element={<AdminUsers />} />
           <Route path='messages' element={<AdminMessages />} />
+          <Route path='service-categories' element={<AdminServiceCategories />} />
+          <Route path='services' element={<AdminServices />} />
           <Route path='settings' element={<AdminSettings />} />
         </Route>
       </Route>

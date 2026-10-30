@@ -41,6 +41,8 @@ const Admin = () => {
     { to: '/admin/orders', label: t('adminOrders'), Icon: OrdersIcon },
     { to: '/admin/users', label: t('adminUsers'), Icon: UsersIcon },
     { to: '/admin/messages', label: t('adminMessages'), Icon: MessagesIcon },
+    { to: '/admin/service-categories', label: t('adminServiceCategories'), Icon: CategoriesIcon },
+    { to: '/admin/services', label: t('adminServices'), Icon: ProductsIcon },
     { to: '/admin/settings', label: t('adminSettings'), Icon: SettingsIcon },
   ];
 
