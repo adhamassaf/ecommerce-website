@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import Spinner from '../../components/spinner/spinner.component.jsx';
 
@@ -9,11 +9,23 @@ import {
 } from '../../utils/firebase/firebase.utils.js';
 import { getLocalized } from '../../utils/i18n.js';
 import { LanguageContext } from '../../contexts/language.context.jsx';
+import { UserContext } from '../../contexts/user.context.jsx';
 
 import './services.styles.scss';
 
 const Services = () => {
   const { language, t } = useContext(LanguageContext);
+  const { currentUser } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const startService = (serviceId) => {
+    const target = `/e-services/apply/${serviceId}`;
+    if (!currentUser) {
+      navigate('/auth', { state: { from: target } });
+      return;
+    }
+    navigate(target);
+  };
   const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +136,11 @@ const Services = () => {
               <p dir='auto'>{getLocalized(service.summary, language)}</p>
             ) : null}
             <div className='service-card-actions'>
-              <button type='button' className='service-start-btn' disabled>
+              <button
+                type='button'
+                className='service-start-btn is-active'
+                onClick={() => startService(service.id)}
+              >
                 {t('startService')}
               </button>
               <Link className='service-details-link' to={`/services/${service.id}`}>

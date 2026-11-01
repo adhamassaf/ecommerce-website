@@ -753,6 +753,11 @@ export const getServices = async () => {
         availability: mapLocale(data.availability),
         order: typeof data.order === 'number' ? data.order : 0,
         enabled: data.enabled !== false,
+        formFields: Array.isArray(data.formFields) ? data.formFields : [],
+        workflowId: data.workflowId || '',
+        workflowSteps: Array.isArray(data.workflowSteps)
+          ? data.workflowSteps
+          : [],
       };
     })
     .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
@@ -778,6 +783,11 @@ export const getServiceById = async (id) => {
     availability: mapLocale(data.availability),
     order: typeof data.order === 'number' ? data.order : 0,
     enabled: data.enabled !== false,
+    formFields: Array.isArray(data.formFields) ? data.formFields : [],
+    workflowId: data.workflowId || '',
+    workflowSteps: Array.isArray(data.workflowSteps)
+      ? data.workflowSteps
+      : [],
   };
 };
 
@@ -804,6 +814,11 @@ export const saveService = async (id, payload, { isNew = false } = {}) => {
       availability: mapLocale(payload.availability),
       order: typeof payload.order === 'number' ? payload.order : 0,
       enabled: payload.enabled !== false,
+      formFields: Array.isArray(payload.formFields) ? payload.formFields : [],
+      workflowId: payload.workflowId || '',
+      workflowSteps: Array.isArray(payload.workflowSteps)
+        ? payload.workflowSteps
+        : [],
       updatedAt: serverTimestamp(),
       ...(isNew ? { createdAt: serverTimestamp() } : {}),
     },
@@ -814,4 +829,181 @@ export const saveService = async (id, payload, { isNew = false } = {}) => {
 export const deleteService = async (id) => {
   if (!id) throw new Error('Missing service id');
   await deleteDoc(doc(db, 'services', id));
+};
+
+
+export const createServiceApplication = async ({
+  userId,
+  userEmail,
+  userName,
+  userPhoto,
+  serviceId,
+  serviceTitle,
+  values,
+  status = 'draft',
+  workflowId = '',
+  currentStageId = '',
+}) => {
+  if (!userId || !serviceId) throw new Error('missing-application-fields');
+  const docRef = await addDoc(collection(db, 'serviceApplications'), {
+    userId,
+    userEmail: userEmail || '',
+    userName: userName || '',
+    userPhoto: userPhoto || '',
+    serviceId,
+    serviceTitle: serviceTitle || '',
+    values: values && typeof values === 'object' ? values : {},
+    status: status === 'submitted' ? 'submitted' : 'draft',
+    workflowId: workflowId || '',
+    currentStageId: currentStageId || '',
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    submittedAt: status === 'submitted' ? serverTimestamp() : null,
+  });
+  return docRef.id;
+};
+
+export const updateServiceApplication = async (id, payload) => {
+  if (!id) throw new Error('Missing application id');
+  const data = {
+    updatedAt: serverTimestamp(),
+  };
+  if (payload.values && typeof payload.values === 'object') data.values = payload.values;
+  if (payload.status) {
+    data.status = payload.status;
+    if (payload.status === 'submitted') data.submittedAt = serverTimestamp();
+  }
+  if (payload.userName != null) data.userName = payload.userName;
+  if (payload.userPhoto != null) data.userPhoto = payload.userPhoto;
+  if (payload.workflowId != null) data.workflowId = payload.workflowId;
+  if (payload.currentStageId != null) data.currentStageId = payload.currentStageId;
+  await updateDoc(doc(db, 'serviceApplications', id), data);
+};
+
+export const getServiceApplication = async (id) => {
+  if (!id) return null;
+  const snapshot = await getDoc(doc(db, 'serviceApplications', id));
+  if (!snapshot.exists()) return null;
+  const data = snapshot.data();
+  return {
+    id: snapshot.id,
+    ...data,
+    createdAt:
+      data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate()
+        : null,
+    updatedAt:
+      data.updatedAt && typeof data.updatedAt.toDate === 'function'
+        ? data.updatedAt.toDate()
+        : null,
+    submittedAt:
+      data.submittedAt && typeof data.submittedAt.toDate === 'function'
+        ? data.submittedAt.toDate()
+        : null,
+  };
+};
+
+export const getUserServiceApplications = async (userId) => {
+  if (!userId) return [];
+  const snapshot = await getDocs(
+    query(collection(db, 'serviceApplications'), where('userId', '==', userId))
+  );
+  return snapshot.docs
+    .map((docSnapshot) => {
+      const data = docSnapshot.data();
+      return {
+        id: docSnapshot.id,
+        ...data,
+        createdAt:
+          data.createdAt && typeof data.createdAt.toDate === 'function'
+            ? data.createdAt.toDate()
+            : null,
+        updatedAt:
+          data.updatedAt && typeof data.updatedAt.toDate === 'function'
+            ? data.updatedAt.toDate()
+            : null,
+        submittedAt:
+          data.submittedAt && typeof data.submittedAt.toDate === 'function'
+            ? data.submittedAt.toDate()
+            : null,
+      };
+    })
+    .sort(
+      (a, b) =>
+        (b.createdAt ? b.createdAt.getTime() : 0) -
+        (a.createdAt ? a.createdAt.getTime() : 0)
+    );
+};
+
+
+const mapWorkflowStage = (stage, index = 0) => ({
+  id: stage?.id || `stage_${index + 1}`,
+  name: mapLocale(stage?.name),
+  nextStageId: stage?.nextStageId || '',
+  permission: String(stage?.permission || '').trim(),
+  order: typeof stage?.order === 'number' ? stage.order : index,
+});
+
+export const getWorkflows = async () => {
+  const snapshot = await getDocs(collection(db, 'workflows'));
+  return snapshot.docs
+    .map((docSnapshot) => {
+      const data = docSnapshot.data();
+      const stages = Array.isArray(data.stages)
+        ? data.stages.map((stage, index) => mapWorkflowStage(stage, index))
+        : [];
+      stages.sort((a, b) => a.order - b.order);
+      return {
+        id: docSnapshot.id,
+        name: mapLocale(data.name),
+        stages,
+        order: typeof data.order === 'number' ? data.order : 0,
+      };
+    })
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+};
+
+export const getWorkflowById = async (id) => {
+  if (!id) return null;
+  const snapshot = await getDoc(doc(db, 'workflows', id));
+  if (!snapshot.exists()) return null;
+  const data = snapshot.data();
+  const stages = Array.isArray(data.stages)
+    ? data.stages.map((stage, index) => mapWorkflowStage(stage, index))
+    : [];
+  stages.sort((a, b) => a.order - b.order);
+  return {
+    id: snapshot.id,
+    name: mapLocale(data.name),
+    stages,
+    order: typeof data.order === 'number' ? data.order : 0,
+  };
+};
+
+export const saveWorkflow = async (id, payload, { isNew = false } = {}) => {
+  if (!id) throw new Error('Missing workflow id');
+  const ref = doc(db, 'workflows', id);
+  if (isNew) {
+    const existing = await getDoc(ref);
+    if (existing.exists()) throw new Error('Workflow id already exists');
+  }
+  const stages = Array.isArray(payload.stages)
+    ? payload.stages.map((stage, index) => mapWorkflowStage(stage, index))
+    : [];
+  await setDoc(
+    ref,
+    {
+      name: mapLocale(payload.name),
+      stages,
+      order: typeof payload.order === 'number' ? payload.order : 0,
+      updatedAt: serverTimestamp(),
+      ...(isNew ? { createdAt: serverTimestamp() } : {}),
+    },
+    { merge: true }
+  );
+};
+
+export const deleteWorkflow = async (id) => {
+  if (!id) throw new Error('Missing workflow id');
+  await deleteDoc(doc(db, 'workflows', id));
 };

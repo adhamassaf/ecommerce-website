@@ -103,6 +103,11 @@
   font-weight: 700;
   opacity: 0.55;
   cursor: not-allowed;
+
+  &.is-active {
+    opacity: 1;
+    cursor: pointer;
+  }
 }
 
 .service-start-hint {

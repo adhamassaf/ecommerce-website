@@ -6,6 +6,7 @@ import Spinner from '../../components/spinner/spinner.component.jsx';
 import {
   getServiceCategories,
   getServices,
+  getWorkflows,
   saveService,
   deleteService,
 } from '../../utils/firebase/firebase.utils.js';
@@ -28,6 +29,9 @@ const EMPTY = {
   categoryId: '',
   order: '',
   enabled: true,
+  formFields: [],
+  workflowId: '',
+  workflowSearch: '',
 };
 
 const localeField = (label, key, form, setForm, as = 'input') => (
@@ -47,6 +51,7 @@ const localeField = (label, key, form, setForm, as = 'input') => (
 const AdminServices = () => {
   const { language, t } = useContext(LanguageContext);
   const [categories, setCategories] = useState([]);
+  const [workflows, setWorkflows] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(EMPTY);
@@ -56,20 +61,23 @@ const AdminServices = () => {
   const [filterCategory, setFilterCategory] = useState('all');
 
   const load = async () => {
-    const [cats, list] = await Promise.all([
+    const [cats, flows, list] = await Promise.all([
       getServiceCategories(),
+      getWorkflows(),
       getServices(),
     ]);
     setCategories(cats);
+    setWorkflows(flows);
     setServices(list);
   };
 
   useEffect(() => {
     let active = true;
-    Promise.all([getServiceCategories(), getServices()])
-      .then(([cats, list]) => {
+    Promise.all([getServiceCategories(), getWorkflows(), getServices()])
+      .then(([cats, flows, list]) => {
         if (!active) return;
         setCategories(cats);
+        setWorkflows(flows);
         setServices(list);
       })
       .catch((err) => {
@@ -103,6 +111,9 @@ const AdminServices = () => {
     setForm({
       ...EMPTY,
       categoryId: categories[0]?.id || '',
+      formFields: [],
+      workflowId: '',
+      workflowSearch: '',
     });
     setEditingId(null);
   };
@@ -123,6 +134,17 @@ const AdminServices = () => {
       categoryId: item.categoryId || '',
       order: item.order === 0 || item.order ? String(item.order) : '',
       enabled: item.enabled !== false,
+      formFields: Array.isArray(item.formFields)
+        ? item.formFields.map((f) => ({
+            ...f,
+            label: normalizeLocaleValue(f.label),
+            options: Array.isArray(f.options)
+              ? f.options.map((o) => normalizeLocaleValue(o))
+              : [],
+          }))
+        : [],
+      workflowId: item.workflowId || '',
+      workflowSearch: '',
     });
     setFeedback(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -168,6 +190,8 @@ const AdminServices = () => {
           categoryId: form.categoryId,
           order,
           enabled: Boolean(form.enabled),
+          formFields: Array.isArray(form.formFields) ? form.formFields : [],
+          workflowId: form.workflowId || '',
         },
         { isNew: !editingId }
       );
@@ -251,6 +275,172 @@ const AdminServices = () => {
         {localeField(t('serviceDurationEn'), 'duration', form, setForm)}
         {localeField(t('serviceOutputEn'), 'output', form, setForm)}
         {localeField(t('serviceAvailabilityEn'), 'availability', form, setForm)}
+
+        <div className='admin-form-wide' style={{ marginTop: 12 }}>
+          <h3 className='admin-panel-title'>{t('serviceFormBuilder')}</h3>
+          <p className='admin-meta'>{t('serviceFormBuilderHint')}</p>
+          {(form.formFields || []).map((field, index) => (
+            <div
+              key={field.id || index}
+              className='admin-panel'
+              style={{ marginBottom: 12, padding: 12 }}
+            >
+              <div className='admin-toolbar'>
+                <label className='admin-field'>
+                  <span className='admin-field-label'>{t('fieldType')}</span>
+                  <select
+                    className='admin-field-control'
+                    value={field.type || 'text'}
+                    onChange={(e) => {
+                      const type = e.target.value;
+                      setForm((prev) => {
+                        const next = [...(prev.formFields || [])];
+                        next[index] = { ...next[index], type };
+                        return { ...prev, formFields: next };
+                      });
+                    }}
+                  >
+                    <option value='text'>{t('fieldTypeText')}</option>
+                    <option value='email'>{t('fieldTypeEmail')}</option>
+                    <option value='phone'>{t('fieldTypePhone')}</option>
+                    <option value='date'>{t('fieldTypeDate')}</option>
+                    <option value='select'>{t('fieldTypeSelect')}</option>
+                    <option value='textarea'>{t('fieldTypeTextarea')}</option>
+                  </select>
+                </label>
+                <label className='admin-field' style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <input
+                    type='checkbox'
+                    checked={Boolean(field.required)}
+                    onChange={(e) => {
+                      const required = e.target.checked;
+                      setForm((prev) => {
+                        const next = [...(prev.formFields || [])];
+                        next[index] = { ...next[index], required };
+                        return { ...prev, formFields: next };
+                      });
+                    }}
+                  />
+                  <span>{t('fieldRequired')}</span>
+                </label>
+                <button
+                  type='button'
+                  className='admin-link-button danger'
+                  onClick={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      formFields: (prev.formFields || []).filter((_, i) => i !== index),
+                    }))
+                  }
+                >
+                  {t('delete')}
+                </button>
+              </div>
+              <AdminField
+                label={t('fieldLabelEn')}
+                value={field.label?.en || ''}
+                localeValue={field.label || { en: '', ar: '' }}
+                translatable
+                onLocaleChange={(next) =>
+                  setForm((prev) => {
+                    const list = [...(prev.formFields || [])];
+                    list[index] = { ...list[index], label: next };
+                    return { ...prev, formFields: list };
+                  })
+                }
+                onChange={() => {}}
+              />
+              {field.type === 'select' && (
+                <label className='admin-field'>
+                  <span className='admin-field-label'>{t('fieldOptionsHint')}</span>
+                  <textarea
+                    className='admin-field-control'
+                    rows={3}
+                    value={(field.options || [])
+                      .map((o) => normalizeLocaleValue(o).en)
+                      .join('\n')}
+                    onChange={(e) => {
+                      const lines = e.target.value
+                        .split('\n')
+                        .map((s) => s.trim())
+                        .filter(Boolean);
+                      setForm((prev) => {
+                        const list = [...(prev.formFields || [])];
+                        list[index] = {
+                          ...list[index],
+                          options: lines.map((line) => ({ en: line, ar: line })),
+                        };
+                        return { ...prev, formFields: list };
+                      });
+                    }}
+                  />
+                </label>
+              )}
+            </div>
+          ))}
+          <button
+            type='button'
+            className='admin-button secondary'
+            onClick={() =>
+              setForm((prev) => ({
+                ...prev,
+                formFields: [
+                  ...(prev.formFields || []),
+                  {
+                    id: `field_${Date.now()}`,
+                    type: 'text',
+                    label: { en: '', ar: '' },
+                    required: false,
+                    options: [],
+                  },
+                ],
+              }))
+            }
+          >
+            {t('addFormField')}
+          </button>
+        </div>
+
+        <div className='admin-form-wide'>
+          <label className='admin-field'>
+            <span className='admin-field-label'>{t('linkedWorkflow')}</span>
+            <input
+              className='admin-field-control'
+              value={form.workflowSearch || ''}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, workflowSearch: e.target.value }))
+              }
+              placeholder={t('searchWorkflows')}
+              dir='auto'
+            />
+          </label>
+          <label className='admin-field'>
+            <span className='admin-field-label'>{t('selectWorkflow')}</span>
+            <select
+              className='admin-field-control'
+              value={form.workflowId || ''}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, workflowId: e.target.value }))
+              }
+            >
+              <option value=''>{t('noWorkflowLinked')}</option>
+              {workflows
+                .filter((wf) => {
+                  const term = (form.workflowSearch || '').trim().toLowerCase();
+                  if (!term) return true;
+                  const en = getLocalized(wf.name, 'en').toLowerCase();
+                  const ar = getLocalized(wf.name, 'ar').toLowerCase();
+                  return en.includes(term) || ar.includes(term) || wf.id.includes(term);
+                })
+                .map((wf) => (
+                  <option key={wf.id} value={wf.id}>
+                    {getLocalized(wf.name, language)} ({(wf.stages || []).length} {t('stagesCount')})
+                  </option>
+                ))}
+            </select>
+          </label>
+          <p className='admin-meta'>{t('linkedWorkflowHint')}</p>
+        </div>
 
         <label className='admin-field'>
           <span className='admin-field-label'>{t('order')}</span>

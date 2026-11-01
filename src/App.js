@@ -19,12 +19,21 @@ import AdminMessages from './routes/admin-messages/admin-messages.component.jsx'
 import AdminSettings from './routes/admin-settings/admin-settings.component.jsx';
 import AdminServiceCategories from './routes/admin-service-categories/admin-service-categories.component.jsx';
 import AdminServices from './routes/admin-services/admin-services.component.jsx';
+import AdminWorkflows from './routes/admin-workflows/admin-workflows.component.jsx';
 import Services from './routes/services/services.component.jsx';
 import ServiceDetails from './routes/service-details/service-details.component.jsx';
+import EServices from './routes/e-services/e-services.component.jsx';
+import EServicesRequests from './routes/e-services-requests/e-services-requests.component.jsx';
+import EServicesApply from './routes/e-services-apply/e-services-apply.component.jsx';
 
 const App = () => {
   return (
     <Routes>
+      <Route path='e-services' element={<EServices />}>
+        <Route index element={<EServicesRequests />} />
+        <Route path='requests' element={<EServicesRequests />} />
+        <Route path='apply/:serviceId' element={<EServicesApply />} />
+      </Route>
       <Route path='/' element={<Navigation />}>
         <Route index element={<Home />} />
         <Route path='shop/*' element={<Shop />} />
@@ -44,6 +53,7 @@ const App = () => {
           <Route path='users' element={<AdminUsers />} />
           <Route path='messages' element={<AdminMessages />} />
           <Route path='service-categories' element={<AdminServiceCategories />} />
+          <Route path='workflows' element={<AdminWorkflows />} />
           <Route path='services' element={<AdminServices />} />
           <Route path='settings' element={<AdminSettings />} />
         </Route>

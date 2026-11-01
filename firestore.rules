@@ -13,39 +13,45 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
-
     match /settings/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
-
     match /serviceCategories/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
-
     match /services/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
-
-    match /contactMessages/{document=**} {
+    match /workflows/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /serviceApplications/{appId} {
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn() &&
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isSignedIn() &&
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+    match /contactMessages/{messageId} {
       allow create: if true;
       allow read, update, delete: if isAdmin();
     }
-
     match /admins/{userId} {
       allow read: if isSignedIn() &&
         (request.auth.uid == userId || isAdmin());
-      allow write: if false;
+      allow write: if isAdmin();
     }
-
     match /users/{userId} {
       allow read: if isSignedIn() &&
         (request.auth.uid == userId || isAdmin());
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
-
     match /orders/{orderId} {
       allow create: if isSignedIn();
       allow read: if isSignedIn() &&

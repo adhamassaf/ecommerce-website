@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import Spinner from '../../components/spinner/spinner.component.jsx';
 
@@ -9,6 +9,7 @@ import {
 } from '../../utils/firebase/firebase.utils.js';
 import { getLocalized } from '../../utils/i18n.js';
 import { LanguageContext } from '../../contexts/language.context.jsx';
+import { UserContext } from '../../contexts/user.context.jsx';
 
 import './service-details.styles.scss';
 
@@ -21,6 +22,17 @@ const linesFromLocale = (value, language) =>
 const ServiceDetails = () => {
   const { serviceId } = useParams();
   const { language, t } = useContext(LanguageContext);
+  const { currentUser } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const handleStart = () => {
+    const target = `/e-services/apply/${serviceId}`;
+    if (!currentUser) {
+      navigate('/auth', { state: { from: target } });
+      return;
+    }
+    navigate(target);
+  };
   const [service, setService] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -157,10 +169,9 @@ const ServiceDetails = () => {
                 ))}
               </dl>
             )}
-            <button type='button' className='service-start-main' disabled>
+            <button type='button' className='service-start-main is-active' onClick={handleStart}>
               {t('startService')}
             </button>
-            <p className='service-start-hint'>{t('startServiceSoon')}</p>
           </div>
         </aside>
       </div>
@@ -173,7 +184,15 @@ const ServiceDetails = () => {
               <article key={item.id} className='service-card'>
                 <h2 dir='auto'>{getLocalized(item.title, language)}</h2>
                 <div className='service-card-actions'>
-                  <button type='button' className='service-start-btn' disabled>
+                  <button
+                    type='button'
+                    className='service-start-btn is-active'
+                    onClick={() => {
+                      const target = `/e-services/apply/${item.id}`;
+                      if (!currentUser) navigate('/auth', { state: { from: target } });
+                      else navigate(target);
+                    }}
+                  >
                     {t('startService')}
                   </button>
                   <Link className='service-details-link' to={`/services/${item.id}`}>
