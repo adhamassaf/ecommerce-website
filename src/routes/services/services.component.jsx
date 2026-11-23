@@ -2,6 +2,8 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import Spinner from '../../components/spinner/spinner.component.jsx';
+import PageCover from '../../components/page-cover/page-cover.component.jsx';
+import { usePageCover } from '../../hooks/use-page-cover.js';
 
 import {
   getServiceCategories,
@@ -14,6 +16,7 @@ import { UserContext } from '../../contexts/user.context.jsx';
 import './services.styles.scss';
 
 const Services = () => {
+  const pageCover = usePageCover('services');
   const { language, t } = useContext(LanguageContext);
   const { currentUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -71,7 +74,14 @@ const Services = () => {
   return (
     <div className='services-page'>
       <header className='services-hero'>
-        <h1>{t('servicesTitle')}</h1>
+        <PageCover
+        title={pageCover.title}
+        imageUrl={pageCover.imageUrl}
+        breadcrumbs={[
+          { label: t('home'), to: '/' },
+          { label: pageCover.title },
+        ]}
+      />
         <p>{t('servicesSubtitle')}</p>
       </header>
 

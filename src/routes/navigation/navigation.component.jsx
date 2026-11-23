@@ -54,6 +54,9 @@ const Navigation = () => {
               {t('shop')}
             </Link>
 
+            <Link className='nav-link' to='/about'>
+              {t('aboutUs')}
+            </Link>
             <Link className='nav-link' to='/services'>
               {t('servicesNav')}
             </Link>

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 
 import AdminField from '../../components/admin-field/admin-field.component.jsx';
+import ImageUpload from '../../components/image-upload/image-upload.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
 
 import {
@@ -54,6 +55,8 @@ const AdminSettings = () => {
     announcementEnabled: false,
     announcementText: { en: '', ar: '' },
     contactTitle: { en: '', ar: '' },
+    contactCoverTitle: { en: '', ar: '' },
+    contactCoverImageUrl: '',
     contactStoreName: { en: '', ar: '' },
     contactAddress: { en: '', ar: '' },
     contactEmail: '',
@@ -82,6 +85,11 @@ const AdminSettings = () => {
           announcementEnabled: Boolean(data.announcementEnabled),
           announcementText: normalizeLocaleValue(data.announcementText),
           contactTitle: normalizeLocaleValue(data.contactTitle),
+          contactCoverTitle: normalizeLocaleValue(
+            data.contactCoverTitle,
+            data.contactTitle || { en: 'Contact us', ar: 'تواصل معنا' }
+          ),
+          contactCoverImageUrl: data.contactCoverImageUrl || '',
           contactStoreName: normalizeLocaleValue(data.contactStoreName),
           contactAddress: normalizeLocaleValue(data.contactAddress),
           contactEmail: data.contactEmail || '',
@@ -295,6 +303,13 @@ const AdminSettings = () => {
           en: contactTitle.en.trim(),
           ar: contactTitle.ar.trim() || contactTitle.en.trim(),
         },
+        contactCoverTitle: {
+          en: normalizeLocaleValue(settings.contactCoverTitle).en.trim(),
+          ar:
+            normalizeLocaleValue(settings.contactCoverTitle).ar.trim() ||
+            normalizeLocaleValue(settings.contactCoverTitle).en.trim(),
+        },
+        contactCoverImageUrl: (settings.contactCoverImageUrl || '').trim(),
         contactStoreName: {
           en: contactStoreName.en.trim(),
           ar: contactStoreName.ar.trim() || contactStoreName.en.trim(),
@@ -420,6 +435,29 @@ const AdminSettings = () => {
           />
           <span>{t('contactShowPhone')}</span>
         </label>
+        <AdminField
+          label={t('pageCoverTitle')}
+          value={settings.contactCoverTitle?.en || ''}
+          localeValue={settings.contactCoverTitle}
+          translatable
+          onLocaleChange={(next) =>
+            setSettings((previous) => ({ ...previous, contactCoverTitle: next }))
+          }
+          onChange={() => {}}
+        />
+        <div className='admin-form-wide'>
+          <ImageUpload
+            label={t('pageCoverImage')}
+            value={settings.contactCoverImageUrl}
+            onChange={(url) =>
+              setSettings((previous) => ({
+                ...previous,
+                contactCoverImageUrl: url,
+              }))
+            }
+            folder='crwn/covers'
+          />
+        </div>
         <AdminField
           label={t('contactTitleField')}
           type='text'

@@ -1,11 +1,14 @@
 import { useContext, useMemo, Fragment } from 'react';
 
+import { LanguageContext } from '../../contexts/language.context.jsx';
 import { CategoriesContext } from '../../contexts/categories.context.jsx';
 import CategoryPreview from '../../components/category-preview/category-preview.component.jsx';
 import ProductCard from '../../components/product-card/product-card.component.jsx';
 import ProductFilters from '../../components/product-filters/product-filters.component.jsx';
 import NoResults from '../../components/no-results/no-results.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
+import PageCover from '../../components/page-cover/page-cover.component.jsx';
+import { usePageCover } from '../../hooks/use-page-cover.js';
 import StatusMessage from '../../components/status-message/status-message.component.jsx';
 
 import { useProductFilters } from '../../hooks/use-product-filters.js';
@@ -15,6 +18,8 @@ import { getLocalized } from '../../utils/i18n.js';
 import './categories-preview.styles.scss';
 
 const CategoriesPreview = () => {
+  const { t } = useContext(LanguageContext);
+  const pageCover = usePageCover('shop');
   const { categories, categoriesMap, isLoading, error } =
     useContext(CategoriesContext);
   const { filters, setFilter, resetFilters, hasActiveFilters } =
@@ -71,6 +76,14 @@ const CategoriesPreview = () => {
 
   return (
     <Fragment>
+      <PageCover
+        title={pageCover.title}
+        imageUrl={pageCover.imageUrl}
+        breadcrumbs={[
+          { label: t('home'), to: '/' },
+          { label: pageCover.title },
+        ]}
+      />
       <ProductFilters
         filters={filters}
         onChange={setFilter}

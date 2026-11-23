@@ -4,22 +4,14 @@
   padding: 0;
 }
 
-.contact-hero {
-  text-align: center;
-  padding: 12px 0 20px;
-  margin-bottom: 8px;
-
-  h1 {
-    margin: 0;
-    font-size: clamp(1.8rem, 3vw, 2.4rem);
-    color: var(--text);
-  }
-}
-
 .contact-layout {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 22px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 24px;
   align-items: stretch;
 
   &.contact-layout--no-map {

@@ -9,6 +9,9 @@ import Orders from './routes/orders/orders.component.jsx';
 import OrderDetails from './routes/order-details/order-details.component.jsx';
 import Profile from './routes/profile/profile.component.jsx';
 import Contact from './routes/contact/contact.component.jsx';
+import About from './routes/about/about.component.jsx';
+import AdminAbout from './routes/admin-about/admin-about.component.jsx';
+import AdminPageCovers from './routes/admin-page-covers/admin-page-covers.component.jsx';
 import Admin from './routes/admin/admin.component.jsx';
 import AdminOverview from './routes/admin-overview/admin-overview.component.jsx';
 import AdminCategories from './routes/admin-categories/admin-categories.component.jsx';
@@ -43,6 +46,7 @@ const App = () => {
         <Route path='orders/:orderId' element={<OrderDetails />} />
         <Route path='profile' element={<Profile />} />
         <Route path='contactUs' element={<Contact />} />
+        <Route path='about' element={<About />} />
         <Route path='services' element={<Services />} />
         <Route path='services/:serviceId' element={<ServiceDetails />} />
         <Route path='admin' element={<Admin />}>
@@ -56,6 +60,8 @@ const App = () => {
           <Route path='workflows' element={<AdminWorkflows />} />
           <Route path='services' element={<AdminServices />} />
           <Route path='settings' element={<AdminSettings />} />
+          <Route path='about' element={<AdminAbout />} />
+          <Route path='page-covers' element={<AdminPageCovers />} />
         </Route>
       </Route>
     </Routes>

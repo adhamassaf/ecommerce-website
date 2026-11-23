@@ -4,6 +4,8 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Button from '../../components/button/button.component.jsx';
 import OrderStatusBadge from '../../components/order-status-badge/order-status-badge.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
+import PageCover from '../../components/page-cover/page-cover.component.jsx';
+import { usePageCover } from '../../hooks/use-page-cover.js';
 
 import { UserContext } from '../../contexts/user.context.jsx';
 import { LanguageContext } from '../../contexts/language.context.jsx';
@@ -19,6 +21,7 @@ import './orders.styles.scss';
 
 const Orders = () => {
   const { currentUser, isAuthReady } = useContext(UserContext);
+  const pageCover = usePageCover('orders');
   const { language, t } = useContext(LanguageContext);
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
@@ -58,8 +61,15 @@ const Orders = () => {
 
   return (
     <div className='orders-container'>
+      <PageCover
+        title={pageCover.title}
+        imageUrl={pageCover.imageUrl}
+        breadcrumbs={[
+          { label: t('home'), to: '/' },
+          { label: pageCover.title },
+        ]}
+      />
       <div className='orders-header'>
-        <h1 className='orders-title'>{t('myOrdersTitle')}</h1>
         {orders.length > 0 && (
           <p className='orders-subtitle'>
             {orders.length}{' '}

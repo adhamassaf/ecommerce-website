@@ -1,0 +1,17 @@
+.admin-page-covers {
+  .admin-page-covers-hint {
+    margin: -8px 0 18px;
+    color: var(--admin-ink-soft, #666);
+    font-size: 14px;
+  }
+
+  .admin-page-cover-card {
+    border: 1px solid var(--admin-line, #e8e0d4);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    background: var(--admin-surface, #fff);
+    display: grid;
+    gap: 12px;
+  }
+}

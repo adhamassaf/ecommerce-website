@@ -292,6 +292,24 @@ export const createOrder = createOrderDocument;
 export const getSiteSettings = async () => getSettingsDocument('general');
 export const saveSiteSettings = async (data) => saveSettingsDocument('general', data);
 
+export const getAboutPage = async () => {
+  try {
+    return await getSettingsDocument('about');
+  } catch {
+    return {};
+  }
+};
+export const saveAboutPage = async (data) => saveSettingsDocument('about', data);
+
+export const getPageCovers = async () => {
+  try {
+    return await getSettingsDocument('page_covers');
+  } catch {
+    return {};
+  }
+};
+export const savePageCovers = async (data) => saveSettingsDocument('page_covers', data);
+
 export const getUserDocuments = async () => {
   const data = await api('/users');
   return (data || []).map((user) => ({

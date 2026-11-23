@@ -61,6 +61,8 @@ const Admin = () => {
     { to: '/admin/service-categories', label: t('adminServiceCategories'), Icon: CategoriesIcon },
     { to: '/admin/workflows', label: t('adminWorkflows'), Icon: OrdersIcon },
     { to: '/admin/services', label: t('adminServices'), Icon: ProductsIcon },
+    { to: '/admin/about', label: t('adminAbout'), Icon: SettingsIcon },
+    { to: '/admin/page-covers', label: t('pageCoversAdmin'), Icon: SettingsIcon },
     { to: '/admin/settings', label: t('adminSettings'), Icon: SettingsIcon },
   ];
 

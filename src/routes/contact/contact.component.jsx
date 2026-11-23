@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 
 import PhoneInput from '../../components/phone-input/phone-input.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
+import PageCover from '../../components/page-cover/page-cover.component.jsx';
 
 import {
   getSiteSettings,
@@ -211,9 +212,21 @@ const Contact = () => {
 
   return (
     <div className='contact-page' dir={dir}>
-      <header className='contact-hero'>
-        <h1>{info.title}</h1>
-      </header>
+      <PageCover
+        title={
+          settings?.contactCoverTitle ||
+          settings?.contactTitle || { en: 'Contact us', ar: 'تواصل معنا' }
+        }
+        imageUrl={settings?.contactCoverImageUrl || ''}
+        breadcrumbs={[
+          { label: t('home'), to: '/' },
+          {
+            label:
+              settings?.contactCoverTitle ||
+              settings?.contactTitle || { en: 'Contact us', ar: 'تواصل معنا' },
+          },
+        ]}
+      />
 
       <div
         className={`contact-layout${info.showMap ? '' : ' contact-layout--no-map'}`}
