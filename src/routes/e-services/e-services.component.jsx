@@ -13,13 +13,25 @@ const EServices = () => {
   const { language, t, dir } = useContext(LanguageContext);
 
   const displayName = useMemo(() => {
+    if (language === 'ar') {
+      return (
+        userProfile?.displayNameAr ||
+        userProfile?.displayName ||
+        currentUser?.displayNameAr ||
+        currentUser?.displayName ||
+        currentUser?.email ||
+        t('guest')
+      );
+    }
     return (
       userProfile?.displayName ||
+      userProfile?.displayNameAr ||
       currentUser?.displayName ||
+      currentUser?.displayNameAr ||
       currentUser?.email ||
       t('guest')
     );
-  }, [userProfile, currentUser, t]);
+  }, [userProfile, currentUser, t, language]);
 
   const photoURL =
     userProfile?.photoURL || currentUser?.photoURL || '';

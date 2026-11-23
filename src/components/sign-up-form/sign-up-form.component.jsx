@@ -7,8 +7,7 @@ import { LanguageContext } from '../../contexts/language.context.jsx';
 
 import {
   createAuthUserWithEmailAndPassword,
-  createUserDocumentFromAuth,
-} from '../../utils/firebase/firebase.utils';
+  } from '../../utils/firebase/firebase.utils';
 
 import './sign-up-form.styles.scss';
 
@@ -55,8 +54,7 @@ const SignUpForm = () => {
     setIsSubmitting(true);
 
     try {
-      const { user } = await createAuthUserWithEmailAndPassword(email, password);
-      await createUserDocumentFromAuth(user, { displayName });
+      await createAuthUserWithEmailAndPassword(email, password, displayName);
       resetFormFields();
     } catch (error) {
       setErrorMessage(getErrorMessage(error));

@@ -28,6 +28,7 @@ const Profile = () => {
   const fileInputRef = useRef(null);
 
   const [displayName, setDisplayName] = useState('');
+  const [displayNameAr, setDisplayNameAr] = useState('');
   const [phone, setPhone] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
@@ -38,6 +39,7 @@ const Profile = () => {
     if (!userProfile) return;
 
     setDisplayName(userProfile.displayName || '');
+    setDisplayNameAr(userProfile.displayNameAr || '');
     setPhone(userProfile.phone || '');
     setPreviewUrl(userProfile.photoURL || '');
     setSelectedFile(null);
@@ -99,6 +101,7 @@ const Profile = () => {
 
       await updateUserProfile(currentUser.uid, {
         displayName,
+        displayNameAr,
         phone,
         photoURL,
       });
@@ -154,7 +157,7 @@ const Profile = () => {
 
         <div className='profile-fields'>
           <label className='profile-field'>
-            <span className='profile-label'>{t('displayName')}</span>
+            <span className='profile-label'>{t('displayNameEn')}</span>
             <input
               className='profile-input'
               type='text'
@@ -163,6 +166,17 @@ const Profile = () => {
               maxLength={80}
               autoComplete='name'
               placeholder='Your name'
+            />
+          </label>
+
+          <label className='profile-field'>
+            <span className='profile-label'>{t('displayNameAr')}</span>
+            <input
+              className='profile-input'
+              type='text'
+              value={displayNameAr}
+              onChange={(e) => setDisplayNameAr(e.target.value)}
+              dir='auto'
             />
           </label>
 

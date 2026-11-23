@@ -23,8 +23,11 @@ const Navigation = () => {
   const { language, setLanguage, t } = useContext(LanguageContext);
 
   const displayName =
-    (userProfile && userProfile.displayName) ||
-    (currentUser && currentUser.displayName) ||
+    (language === 'ar'
+      ? (userProfile && (userProfile.displayNameAr || userProfile.displayName)) ||
+        (currentUser && (currentUser.displayNameAr || currentUser.displayName))
+      : (userProfile && (userProfile.displayName || userProfile.displayNameAr)) ||
+        (currentUser && (currentUser.displayName || currentUser.displayNameAr))) ||
     '';
   const photoURL =
     (userProfile && userProfile.photoURL) ||

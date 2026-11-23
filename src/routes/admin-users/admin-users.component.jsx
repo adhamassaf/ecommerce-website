@@ -1,11 +1,13 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import AdminField from '../../components/admin-field/admin-field.component.jsx';
+import ImageUpload from '../../components/image-upload/image-upload.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
 
 import {
   getUserDocuments,
   createUserByAdmin,
+  updateUserProfile,
   setUserDisabled,
   setUserAdminRole,
 } from '../../utils/firebase/firebase.utils.js';
@@ -22,12 +24,29 @@ const FILTERS = [
   { id: 'disabled', labelKey: 'filterDisabledUsers' },
 ];
 
+const toDate = (value) => {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+
 const EMPTY_FORM = {
   displayName: '',
+  displayNameAr: '',
   email: '',
   password: '',
+  photoURL: '',
   makeAdmin: false,
 };
+
+const getUserDisplayName = (user, language) => {
+  if (language === 'ar') {
+    return user.displayNameAr || user.displayName || user.email || '';
+  }
+  return user.displayName || user.displayNameAr || user.email || '';
+};
+
 
 const mapAuthCreateError = (error, t) => {
   const code = error && error.code ? error.code : error && error.message;
@@ -62,6 +81,8 @@ const AdminUsers = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [form, setForm] = useState(EMPTY_FORM);
+  const photoRef = useRef('');
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [busyId, setBusyId] = useState('');
 
@@ -72,11 +93,11 @@ const AdminUsers = () => {
       .then((documents) => {
         if (!isActive) return;
 
-        const sorted = [...documents].sort(
-          (a, b) =>
-            (b.createdAt ? b.createdAt.getTime() : 0) -
-            (a.createdAt ? a.createdAt.getTime() : 0)
-        );
+        const sorted = [...documents].sort((a, b) => {
+          const bt = toDate(b.createdAt)?.getTime() || 0;
+          const at = toDate(a.createdAt)?.getTime() || 0;
+          return bt - at;
+        });
 
         setUsers(sorted);
       })
@@ -112,7 +133,7 @@ const AdminUsers = () => {
 
       if (!term) return true;
 
-      const name = (user.displayName || '').toLowerCase();
+      const name = `${user.displayName || ''} ${user.displayNameAr || ''}`.toLowerCase();
       const email = (user.email || '').toLowerCase();
       return name.includes(term) || email.includes(term);
     });
@@ -131,14 +152,35 @@ const AdminUsers = () => {
     setIsSaving(true);
 
     try {
+      if (photoUploading) {
+        setFeedback({ type: 'error', text: t('waitImageUpload') });
+        setIsSaving(false);
+        return;
+      }
+
+      const photoURL = (form.photoURL || photoRef.current || '').trim();
+      console.log('[admin-users] create payload photoURL length:', photoURL.length);
       const created = await createUserByAdmin({
-        email: form.email,
+        email: form.email.trim(),
         password: form.password,
-        displayName: form.displayName,
-        makeAdmin: form.makeAdmin,
+        displayName: form.displayName.trim(),
+        displayNameAr: (form.displayNameAr || '').trim(),
+        photoURL,
+        isAdmin: form.makeAdmin,
       });
 
-      setUsers((current) => [created, ...current]);
+      const newId = created?.id || created?.uid;
+      if (newId && photoURL) {
+        try {
+          await updateUserProfile(newId, { photoURL });
+        } catch (_) {
+          /* ignore secondary save errors */
+        }
+      }
+
+      const documents = await getUserDocuments();
+      setUsers(documents);
+      photoRef.current = '';
       setForm(EMPTY_FORM);
       setFeedback({ type: 'success', text: t('userCreatedSuccess') });
     } catch (err) {
@@ -234,12 +276,29 @@ const AdminUsers = () => {
           {t('addUserTitle')}
         </h2>
         <AdminField
-          label={t('colName')}
-          type='text'
+          label={t('displayNameEn')}
           value={form.displayName}
           onChange={handleFormChange('displayName')}
-          autoComplete='off'
+          required
         />
+        <AdminField
+          label={t('displayNameAr')}
+          value={form.displayNameAr}
+          onChange={handleFormChange('displayNameAr')}
+          dir='auto'
+        />
+        <ImageUpload
+          label={t('userPhotoOptional')}
+          value={form.photoURL}
+          onChange={(url) => {
+            const next = url || '';
+            photoRef.current = next;
+            setForm((prev) => ({ ...prev, photoURL: next }));
+          }}
+          onUploadingChange={setPhotoUploading}
+          folder='crwn/profiles'
+        />
+        <input type='hidden' name='photoURL' value={form.photoURL || ''} readOnly />
         <AdminField
           label={t('colEmail')}
           type='email'
@@ -268,7 +327,7 @@ const AdminUsers = () => {
           <span>{t('makeAdminCheckbox')}</span>
         </label>
         <div className='admin-form-actions'>
-          <button className='admin-button' type='submit' disabled={isSaving}>
+          <button className='admin-button' type='submit' disabled={isSaving || photoUploading}>
             {isSaving ? t('saving') : t('addUserBtn')}
           </button>
         </div>
@@ -326,7 +385,8 @@ const AdminUsers = () => {
             </thead>
             <tbody>
               {visibleUsers.map((user) => {
-                const initials = (user.displayName || user.email || '?')
+                const shownName = getUserDisplayName(user, language);
+                const initials = (shownName || user.email || '?')
                   .trim()
                   .charAt(0)
                   .toUpperCase();
@@ -348,7 +408,7 @@ const AdminUsers = () => {
                           )}
                         </span>
                         <span className='admin-user-name' dir='auto'>
-                          {user.displayName || '-'}
+                          {shownName || '-'}
                           {isSelf ? ` (${t('youLabel')})` : ''}
                         </span>
                       </div>
@@ -374,16 +434,19 @@ const AdminUsers = () => {
                     </td>
                     <td dir='ltr'>{user.phone || '-'}</td>
                     <td dir='ltr'>
-                      {user.createdAt
-                        ? user.createdAt.toLocaleDateString(
-                            language === 'ar' ? 'ar' : 'en-GB',
-                            {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric',
-                            }
-                          )
-                        : '-'}
+                      {(() => {
+                        const d = toDate(user.createdAt);
+                        return d
+                          ? d.toLocaleDateString(
+                              'en-GB',
+                              {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                              }
+                            )
+                          : '-';
+                      })()}
                     </td>
                     <td>
                       <div className='admin-actions'>

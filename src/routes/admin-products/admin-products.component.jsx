@@ -2,6 +2,7 @@ import { useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import AdminField from '../../components/admin-field/admin-field.component.jsx';
+import ImageUpload from '../../components/image-upload/image-upload.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
 import StatusMessage from '../../components/status-message/status-message.component.jsx';
 
@@ -84,7 +85,7 @@ const AdminProducts = () => {
     );
   }
 
-  const selectedCategoryId = form.categoryId || categories[0].id;
+  const selectedCategoryId = form.categoryId || (categories[0] && categories[0].id) || '';
 
   const handleChange = (field) => (event) => {
     const { value } = event.target;
@@ -116,6 +117,11 @@ const AdminProducts = () => {
     const imageUrl = form.imageUrl.trim();
     const price = Number(form.price);
 
+    if (!selectedCategoryId) {
+      setFeedback({ type: 'error', text: t('selectCategoryFirst') || 'Select a category first.' });
+      return;
+    }
+
     if (!nameEn) {
       setFeedback({ type: 'error', text: t('enterProductNameEn') });
       return;
@@ -135,7 +141,7 @@ const AdminProducts = () => {
     }
 
     const product = {
-      id: editing ? editing.id : nextId,
+      id: editing ? editing.id : `p_${Date.now()}`,
       name: { en: nameEn, ar: nameLocale.ar.trim() || nameEn },
       price,
       imageUrl,
@@ -236,21 +242,13 @@ const AdminProducts = () => {
           onChange={handleChange('price')}
           required
         />
-        <AdminField
+        <ImageUpload
           label={t('productImageUrl')}
-          type='url'
-          dir='ltr'
           value={form.imageUrl}
-          onChange={handleChange('imageUrl')}
+          onChange={(url) => setForm((prev) => ({ ...prev, imageUrl: url }))}
+          folder='crwn/products'
           required
         />
-        {isValidUrl(form.imageUrl.trim()) && (
-          <img
-            className='admin-preview'
-            src={form.imageUrl.trim()}
-            alt={t('imagePreviewAlt')}
-          />
-        )}
         <div className='admin-form-actions'>
           <button className='admin-button' type='submit' disabled={isSaving}>
             {isSaving

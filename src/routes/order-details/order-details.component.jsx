@@ -6,6 +6,8 @@ import Spinner from '../../components/spinner/spinner.component.jsx';
 import StatusMessage from '../../components/status-message/status-message.component.jsx';
 
 import { UserContext } from '../../contexts/user.context.jsx';
+import { LanguageContext } from '../../contexts/language.context.jsx';
+import { getLocalized } from '../../utils/i18n.js';
 
 import { getOrderById } from '../../utils/firebase/firebase.utils.js';
 import {
@@ -21,6 +23,7 @@ const OrderDetails = () => {
   const { orderId } = useParams();
   const location = useLocation();
   const { currentUser, isAuthReady } = useContext(UserContext);
+  const { language, t } = useContext(LanguageContext);
 
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -96,9 +99,9 @@ const OrderDetails = () => {
         <div className='order-items'>
           {order.items.map((item) => (
             <div className='order-item' key={item.id}>
-              <img src={item.imageUrl} alt={item.name} />
+              <img src={item.imageUrl} alt={getLocalized(item.name, language)} />
               <div className='order-item-info'>
-                <span className='order-item-name'>{item.name}</span>
+                <span className='order-item-name' dir='auto'>{getLocalized(item.name, language)}</span>
                 <span className='order-item-meta'>
                   {item.quantity} x {formatMoney(item.price)}
                 </span>

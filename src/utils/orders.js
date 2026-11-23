@@ -43,16 +43,18 @@ export const formatMoney = (value) => {
   return `$${Number.isInteger(amount) ? amount : amount.toFixed(2)}`;
 };
 
-export const formatOrderDate = (date, language = 'en') =>
-  date
-    ? date.toLocaleString(language === 'ar' ? 'ar' : 'en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : '-';
+export const formatOrderDate = (date, language = 'en') => {
+  if (!date) return '-';
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return String(date);
+  return d.toLocaleString(language === 'ar' ? 'ar-EG' : 'en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
 
 export const getOrderErrorMessage = (error) => {
   if (error && error.code === 'permission-denied') {

@@ -1,0 +1,134 @@
+CREATE DATABASE IF NOT EXISTS crwn_eco CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE crwn_eco;
+
+CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR(64) PRIMARY KEY,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  display_name VARCHAR(190) DEFAULT '',
+  display_name_ar VARCHAR(190) DEFAULT '',
+  photo_url TEXT,
+  phone VARCHAR(40) DEFAULT '',
+  is_admin TINYINT(1) NOT NULL DEFAULT 0,
+  disabled TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+  id VARCHAR(64) PRIMARY KEY,
+  title_json JSON NOT NULL,
+  image_url TEXT,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id VARCHAR(64) PRIMARY KEY,
+  category_id VARCHAR(64) NOT NULL,
+  name_json JSON NOT NULL,
+  description_json JSON,
+  price DECIMAL(12,2) NOT NULL DEFAULT 0,
+  image_url TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (category_id)
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id VARCHAR(64) PRIMARY KEY,
+  user_id VARCHAR(64) NOT NULL,
+  user_email VARCHAR(190) DEFAULT '',
+  user_name VARCHAR(190) DEFAULT '',
+  items_json JSON NOT NULL,
+  items_count INT NOT NULL DEFAULT 0,
+  total DECIMAL(12,2) NOT NULL DEFAULT 0,
+  shipping_json JSON NOT NULL,
+  payment_method VARCHAR(40) NOT NULL,
+  payment_status VARCHAR(40) NOT NULL,
+  status VARCHAR(40) NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS settings (
+  id VARCHAR(64) PRIMARY KEY,
+  data_json JSON NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id VARCHAR(64) PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(190) NOT NULL,
+  phone VARCHAR(40) DEFAULT '',
+  subject VARCHAR(190) NOT NULL,
+  message TEXT NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'new',
+  custom_values_json JSON,
+  reply_text TEXT,
+  replied_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS service_categories (
+  id VARCHAR(64) PRIMARY KEY,
+  title_json JSON NOT NULL,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS workflows (
+  id VARCHAR(64) PRIMARY KEY,
+  name_json JSON NOT NULL,
+  stages_json JSON NOT NULL,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS services (
+  id VARCHAR(64) PRIMARY KEY,
+  category_id VARCHAR(64) NOT NULL,
+  title_json JSON NOT NULL,
+  summary_json JSON,
+  about_json JSON,
+  steps_json JSON,
+  requirements_json JSON,
+  service_type_json JSON,
+  fees_json JSON,
+  duration_json JSON,
+  output_json JSON,
+  availability_json JSON,
+  form_fields_json JSON,
+  workflow_id VARCHAR(64) DEFAULT '',
+  sort_order INT DEFAULT 0,
+  enabled TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX (category_id),
+  INDEX (workflow_id)
+);
+
+CREATE TABLE IF NOT EXISTS service_applications (
+  id VARCHAR(64) PRIMARY KEY,
+  user_id VARCHAR(64) NOT NULL,
+  user_email VARCHAR(190) DEFAULT '',
+  user_name VARCHAR(190) DEFAULT '',
+  user_photo TEXT,
+  service_id VARCHAR(64) NOT NULL,
+  service_title_json JSON,
+  values_json JSON,
+  status VARCHAR(40) NOT NULL DEFAULT 'draft',
+  workflow_id VARCHAR(64) DEFAULT '',
+  current_stage_id VARCHAR(64) DEFAULT '',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  submitted_at TIMESTAMP NULL,
+  INDEX (user_id),
+  INDEX (service_id)
+);

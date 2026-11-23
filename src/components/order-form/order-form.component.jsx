@@ -15,6 +15,7 @@ import {
   parsePhoneValue,
 } from '../../utils/phone-countries.js';
 import { LanguageContext } from '../../contexts/language.context.jsx';
+import { getLocalized } from '../../utils/i18n.js';
 import PhoneInput from '../phone-input/phone-input.component.jsx';
 
 import './order-form.styles.scss';
@@ -131,7 +132,7 @@ const OrderForm = () => {
 
       if (!product) {
         setErrorMessage(
-          `"${cartItem.name}" is no longer available. Please remove it from your cart.`
+          `"${getLocalized(cartItem.name, language) || cartItem.name}" is no longer available. Please remove it from your cart.`
         );
         return;
       }

@@ -2,6 +2,7 @@ import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import AdminField from '../../components/admin-field/admin-field.component.jsx';
+import ImageUpload from '../../components/image-upload/image-upload.component.jsx';
 import Spinner from '../../components/spinner/spinner.component.jsx';
 import StatusMessage from '../../components/status-message/status-message.component.jsx';
 
@@ -164,13 +165,11 @@ const AdminCategories = () => {
           }
           required
         />
-        <AdminField
+        <ImageUpload
           label={t('categoryImageUrl')}
-          type='url'
-          dir='ltr'
           value={form.imageUrl}
-          onChange={handleChange('imageUrl')}
-          hint='تظهر في الصفحة الرئيسية. إذا تُرك فارغاً تُستخدم صورة افتراضية.'
+          onChange={(url) => setForm((prev) => ({ ...prev, imageUrl: url }))}
+          folder='crwn/categories'
         />
         <AdminField
           label={t('categoryOrder')}

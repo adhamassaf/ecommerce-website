@@ -20,7 +20,7 @@ import { LanguageContext } from '../../contexts/language.context.jsx';
 import './admin.styles.scss';
 
 const Admin = () => {
-  const { currentUser, isAdmin, isAuthReady } = useContext(UserContext);
+  const { currentUser, userProfile, isAdmin, isAuthReady } = useContext(UserContext);
   const { language, t, dir } = useContext(LanguageContext);
 
   if (!isAuthReady) return <Spinner />;
@@ -31,8 +31,25 @@ const Admin = () => {
     return <StatusMessage message={t('noAdminAccess')} />;
   }
 
-  const displayName = currentUser.displayName || currentUser.email || '';
-  const initial = displayName.trim().charAt(0).toUpperCase();
+  const displayName =
+    language === 'ar'
+      ? userProfile?.displayNameAr ||
+        userProfile?.displayName ||
+        currentUser.displayNameAr ||
+        currentUser.displayName ||
+        currentUser.email ||
+        ''
+      : userProfile?.displayName ||
+        userProfile?.displayNameAr ||
+        currentUser.displayName ||
+        currentUser.displayNameAr ||
+        currentUser.email ||
+        '';
+
+  const photoURL =
+    userProfile?.photoURL || currentUser.photoURL || '';
+
+  const initial = (displayName || '?').trim().charAt(0).toUpperCase();
 
   const links = [
     { to: '/admin', label: t('adminOverview'), end: true, Icon: OverviewIcon },
@@ -72,7 +89,11 @@ const Admin = () => {
         <div className='admin-sidebar-footer'>
           <div className='admin-user'>
             <span className='admin-avatar' aria-hidden='true'>
-              {initial}
+              {photoURL ? (
+                <img src={photoURL} alt='' />
+              ) : (
+                initial
+              )}
             </span>
             <div className='admin-user-info'>
               <span className='admin-user-name' dir='auto'>

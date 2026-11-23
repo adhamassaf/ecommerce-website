@@ -18,6 +18,7 @@ import {
 } from '../../utils/orders.js';
 
 import { LanguageContext } from '../../contexts/language.context.jsx';
+import { getLocalized } from '../../utils/i18n.js';
 
 import './admin-orders.styles.scss';
 
@@ -209,9 +210,9 @@ const AdminOrders = () => {
                                     <img
                                       className='admin-thumb'
                                       src={item.imageUrl}
-                                      alt={item.name}
+                                      alt={getLocalized(item.name, language)}
                                     />
-                                    <span dir='auto'>{item.name}</span>
+                                    <span dir='auto'>{getLocalized(item.name, language)}</span>
                                     <span dir='ltr'>
                                       {item.quantity} x{' '}
                                       {formatMoney(item.price)}
